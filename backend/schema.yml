@@ -1,0 +1,3346 @@
+openapi: 3.0.3
+info:
+  title: PC Builder API
+  version: 1.0.0
+  description: 'PC configurator: component catalog, builds with compatibility checks,
+    orders, statistics and an AI build advisor.'
+paths:
+  /api/advisor/:
+    post:
+      operationId: advisor_create
+      description: |-
+        Recommend a complete, compatible build for a budget and use case.
+
+        Logged-in users only and rate limited: each call may cost LLM tokens.
+      tags:
+      - advisor
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdvisorRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AdvisorRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AdvisorRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdvisorResponse'
+          description: ''
+  /api/auth/me/:
+    get:
+      operationId: auth_me_retrieve
+      tags:
+      - auth
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+    put:
+      operationId: auth_me_update
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UserRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UserRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+    patch:
+      operationId: auth_me_partial_update
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedUserRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedUserRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedUserRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+  /api/auth/register/:
+    post:
+      operationId: auth_register_create
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+        required: true
+      security:
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Register'
+          description: ''
+  /api/auth/token/:
+    post:
+      operationId: auth_token_create
+      description: |-
+        Takes a set of user credentials and returns an access and refresh JSON web
+        token pair to prove the authentication of those credentials.
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TokenObtainPairRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TokenObtainPairRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TokenObtainPairRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenObtainPair'
+          description: ''
+  /api/auth/token/refresh/:
+    post:
+      operationId: auth_token_refresh_create
+      description: |-
+        Takes a refresh type JSON web token and returns an access type JSON web
+        token if the refresh token is valid.
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TokenRefreshRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TokenRefreshRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TokenRefreshRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenRefresh'
+          description: ''
+  /api/builds/:
+    get:
+      operationId: builds_list
+      parameters:
+      - in: query
+        name: component
+        schema:
+          type: number
+        description: Only builds that contain this component id.
+      - in: query
+        name: is_public
+        schema:
+          type: boolean
+      - in: query
+        name: max_total
+        schema:
+          type: number
+      - in: query
+        name: min_total
+        schema:
+          type: number
+      - in: query
+        name: mine
+        schema:
+          type: boolean
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - in: query
+        name: owner
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - builds
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedBuildListList'
+          description: ''
+    post:
+      operationId: builds_create
+      tags:
+      - builds
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BuildWriteRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/BuildWriteRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/BuildWriteRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BuildDetail'
+          description: ''
+  /api/builds/{id}/:
+    get:
+      operationId: builds_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this build.
+        required: true
+      tags:
+      - builds
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BuildDetail'
+          description: ''
+    put:
+      operationId: builds_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this build.
+        required: true
+      tags:
+      - builds
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BuildWriteRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/BuildWriteRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/BuildWriteRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BuildDetail'
+          description: ''
+    patch:
+      operationId: builds_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this build.
+        required: true
+      tags:
+      - builds
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedBuildWriteRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedBuildWriteRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedBuildWriteRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BuildDetail'
+          description: ''
+    delete:
+      operationId: builds_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this build.
+        required: true
+      tags:
+      - builds
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/builds/{id}/clone/:
+    post:
+      operationId: builds_clone_create
+      description: Copy a visible build (e.g. someone's public build) into your own
+        builds.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this build.
+        required: true
+      tags:
+      - builds
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BuildDetail'
+          description: ''
+  /api/builds/{id}/comments/:
+    get:
+      operationId: builds_comments_list
+      summary: List build comments
+      parameters:
+      - in: query
+        name: component
+        schema:
+          type: number
+        description: Only builds that contain this component id.
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this build.
+        required: true
+      - in: query
+        name: is_public
+        schema:
+          type: boolean
+      - in: query
+        name: max_total
+        schema:
+          type: number
+      - in: query
+        name: min_total
+        schema:
+          type: number
+      - in: query
+        name: mine
+        schema:
+          type: boolean
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - in: query
+        name: owner
+        schema:
+          type: string
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - builds
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Comment'
+          description: ''
+    post:
+      operationId: builds_comments_create
+      summary: Comment on a build
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this build.
+        required: true
+      tags:
+      - builds
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CommentRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CommentRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CommentRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comment'
+          description: ''
+  /api/builds/{id}/compatibility/:
+    get:
+      operationId: builds_compatibility_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this build.
+        required: true
+      tags:
+      - builds
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CompatibilityReport'
+          description: ''
+  /api/categories/:
+    get:
+      operationId: categories_list
+      parameters:
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - categories
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Category'
+          description: ''
+  /api/categories/{slug}/:
+    get:
+      operationId: categories_retrieve
+      parameters:
+      - in: path
+        name: slug
+        schema:
+          type: string
+        required: true
+      tags:
+      - categories
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Category'
+          description: ''
+  /api/comments/{id}/:
+    get:
+      operationId: comments_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this comment.
+        required: true
+      tags:
+      - comments
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comment'
+          description: ''
+    put:
+      operationId: comments_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this comment.
+        required: true
+      tags:
+      - comments
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CommentRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CommentRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CommentRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comment'
+          description: ''
+    patch:
+      operationId: comments_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this comment.
+        required: true
+      tags:
+      - comments
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedCommentRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedCommentRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedCommentRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comment'
+          description: ''
+    delete:
+      operationId: comments_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this comment.
+        required: true
+      tags:
+      - comments
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/compatibility/check/:
+    post:
+      operationId: compatibility_check_create
+      description: Check an unsaved set of components. Used by the configurator for
+        live feedback.
+      tags:
+      - compatibility
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CompatibilityCheckRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CompatibilityCheckRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CompatibilityCheckRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CompatibilityReport'
+          description: ''
+  /api/components/:
+    get:
+      operationId: components_list
+      parameters:
+      - in: query
+        name: buildable
+        schema:
+          type: boolean
+        description: Only parts with complete specs (usable in the configurator).
+      - in: query
+        name: category
+        schema:
+          type: string
+          enum:
+          - case
+          - cooler
+          - cpu
+          - gpu
+          - motherboard
+          - psu
+          - ram
+          - storage
+        description: |-
+          * `cpu` - Processor
+          * `motherboard` - Motherboard
+          * `ram` - Memory
+          * `gpu` - Graphics card
+          * `storage` - Storage
+          * `psu` - Power supply
+          * `case` - Case
+          * `cooler` - CPU cooler
+      - in: query
+        name: compatible_with
+        schema:
+          type: string
+        description: Comma-separated ids of already selected components. Only parts
+          compatible with them are returned. Requires `category`.
+      - in: query
+        name: form_factor
+        schema:
+          type: string
+      - in: query
+        name: is_active
+        schema:
+          type: boolean
+      - in: query
+        name: manufacturer
+        schema:
+          type: string
+      - in: query
+        name: max_price
+        schema:
+          type: number
+      - in: query
+        name: memory_type
+        schema:
+          type: string
+      - in: query
+        name: min_price
+        schema:
+          type: number
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      - in: query
+        name: socket
+        schema:
+          type: string
+      tags:
+      - components
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedComponentList'
+          description: ''
+    post:
+      operationId: components_create
+      tags:
+      - components
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ComponentRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ComponentRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ComponentRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Component'
+          description: ''
+  /api/components/{slug}/:
+    get:
+      operationId: components_retrieve
+      parameters:
+      - in: path
+        name: slug
+        schema:
+          type: string
+        required: true
+      tags:
+      - components
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Component'
+          description: ''
+    put:
+      operationId: components_update
+      parameters:
+      - in: path
+        name: slug
+        schema:
+          type: string
+        required: true
+      tags:
+      - components
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ComponentRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ComponentRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ComponentRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Component'
+          description: ''
+    patch:
+      operationId: components_partial_update
+      parameters:
+      - in: path
+        name: slug
+        schema:
+          type: string
+        required: true
+      tags:
+      - components
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedComponentRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedComponentRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedComponentRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Component'
+          description: ''
+    delete:
+      operationId: components_destroy
+      parameters:
+      - in: path
+        name: slug
+        schema:
+          type: string
+        required: true
+      tags:
+      - components
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/components/{slug}/listings/:
+    post:
+      operationId: components_listings_create
+      description: |-
+        Staff: attach a product page URL. It is fetched right away, so the
+        response already contains the title, price and photos found there.
+      parameters:
+      - in: path
+        name: slug
+        schema:
+          type: string
+        required: true
+      tags:
+      - components
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ListingCreateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ListingCreateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ListingCreateRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Listing'
+          description: ''
+  /api/components/{slug}/price-history/:
+    get:
+      operationId: components_price_history_list
+      description: 'Daily price points, oldest first: typical (median) price and the
+        day''s range.'
+      parameters:
+      - in: query
+        name: buildable
+        schema:
+          type: boolean
+        description: Only parts with complete specs (usable in the configurator).
+      - in: query
+        name: category
+        schema:
+          type: string
+          enum:
+          - case
+          - cooler
+          - cpu
+          - gpu
+          - motherboard
+          - psu
+          - ram
+          - storage
+        description: |-
+          * `cpu` - Processor
+          * `motherboard` - Motherboard
+          * `ram` - Memory
+          * `gpu` - Graphics card
+          * `storage` - Storage
+          * `psu` - Power supply
+          * `case` - Case
+          * `cooler` - CPU cooler
+      - in: query
+        name: compatible_with
+        schema:
+          type: string
+        description: Comma-separated component ids; requires `category`.
+      - in: query
+        name: days
+        schema:
+          type: integer
+        description: 'Only the last N days (e.g. 30, 90, 180, 365). Default: everything.'
+      - in: query
+        name: form_factor
+        schema:
+          type: string
+      - in: query
+        name: is_active
+        schema:
+          type: boolean
+      - in: query
+        name: manufacturer
+        schema:
+          type: string
+      - in: query
+        name: max_price
+        schema:
+          type: number
+      - in: query
+        name: memory_type
+        schema:
+          type: string
+      - in: query
+        name: min_price
+        schema:
+          type: number
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      - in: path
+        name: slug
+        schema:
+          type: string
+        required: true
+      - in: query
+        name: socket
+        schema:
+          type: string
+      tags:
+      - components
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PriceHistory'
+          description: ''
+  /api/exchange-rates/:
+    get:
+      operationId: exchange_rates_list
+      parameters:
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - exchange-rates
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedExchangeRateList'
+          description: ''
+  /api/exchange-rates/{id}/:
+    get:
+      operationId: exchange_rates_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this exchange rate.
+        required: true
+      tags:
+      - exchange-rates
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExchangeRate'
+          description: ''
+  /api/exchange-rates/latest/:
+    get:
+      operationId: exchange_rates_latest_retrieve
+      tags:
+      - exchange-rates
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExchangeRate'
+          description: ''
+  /api/manufacturers/:
+    get:
+      operationId: manufacturers_list
+      parameters:
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - manufacturers
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Manufacturer'
+          description: ''
+  /api/manufacturers/{slug}/:
+    get:
+      operationId: manufacturers_retrieve
+      parameters:
+      - in: path
+        name: slug
+        schema:
+          type: string
+        required: true
+      tags:
+      - manufacturers
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Manufacturer'
+          description: ''
+  /api/orders/:
+    get:
+      operationId: orders_list
+      parameters:
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      - in: query
+        name: status
+        schema:
+          type: string
+          enum:
+          - cancelled
+          - delivered
+          - paid
+          - pending
+          - shipped
+        description: |-
+          * `pending` - Awaiting payment
+          * `paid` - Paid
+          * `shipped` - Shipped
+          * `delivered` - Delivered
+          * `cancelled` - Cancelled
+      tags:
+      - orders
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedOrderList'
+          description: ''
+    post:
+      operationId: orders_create
+      tags:
+      - orders
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrderCreateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/OrderCreateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/OrderCreateRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+          description: ''
+  /api/orders/{id}/:
+    get:
+      operationId: orders_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this order.
+        required: true
+      tags:
+      - orders
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+          description: ''
+  /api/orders/{id}/advance/:
+    post:
+      operationId: orders_advance_create
+      description: 'Staff only: move the order along (paid → shipped → delivered).'
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this order.
+        required: true
+      tags:
+      - orders
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StatusChangeRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/StatusChangeRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/StatusChangeRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+          description: ''
+  /api/orders/{id}/cancel/:
+    post:
+      operationId: orders_cancel_create
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this order.
+        required: true
+      tags:
+      - orders
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+          description: ''
+  /api/orders/{id}/pay/:
+    post:
+      operationId: orders_pay_create
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this order.
+        required: true
+      tags:
+      - orders
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentSession'
+          description: ''
+  /api/stats/categories/:
+    get:
+      operationId: stats_categories_list
+      tags:
+      - stats
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CategoryStats'
+          description: ''
+  /api/stats/cheapest-build/:
+    get:
+      operationId: stats_cheapest_build_retrieve
+      description: The cheapest public build that contains the given GPU.
+      parameters:
+      - in: query
+        name: gpu
+        schema:
+          type: integer
+        required: true
+      tags:
+      - stats
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BuildList'
+          description: ''
+        '404':
+          description: No response body
+  /api/stats/popular-components/:
+    get:
+      operationId: stats_popular_components_list
+      parameters:
+      - in: query
+        name: limit
+        schema:
+          type: integer
+        description: Default 10, max 50
+      tags:
+      - stats
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PopularComponent'
+          description: ''
+  /api/stats/price-position/:
+    get:
+      operationId: stats_price_position_list
+      description: Where each component sits on the price ladder of its category.
+      parameters:
+      - in: query
+        name: category
+        schema:
+          type: string
+          enum:
+          - case
+          - cooler
+          - cpu
+          - gpu
+          - motherboard
+          - psu
+          - ram
+          - storage
+        required: true
+      tags:
+      - stats
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PricePosition'
+          description: ''
+  /api/stats/top-per-category/:
+    get:
+      operationId: stats_top_per_category_list
+      description: |-
+        Top-N most used components *within each category* — a window function.
+
+        ``RANK() OVER (PARTITION BY category ORDER BY build_count DESC)`` and then a
+        filter on the window result (supported since Django 4.2, compiled into a
+        subquery because SQL does not allow WHERE on window functions directly).
+      parameters:
+      - in: query
+        name: top
+        schema:
+          type: integer
+        description: Default 3, max 10
+      tags:
+      - stats
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PopularComponent'
+          description: ''
+  /api/telegram/:
+    get:
+      operationId: telegram_retrieve
+      description: Connection of the account to the Telegram bot.
+      tags:
+      - telegram
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TelegramStatus'
+          description: ''
+    patch:
+      operationId: telegram_partial_update
+      description: Connection of the account to the Telegram bot.
+      tags:
+      - telegram
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedTelegramStatusRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedTelegramStatusRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedTelegramStatusRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TelegramStatus'
+          description: ''
+    delete:
+      operationId: telegram_destroy
+      description: Disconnect the chat (the watches stay).
+      tags:
+      - telegram
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/telegram/link/:
+    post:
+      operationId: telegram_link_create
+      description: Issue a one-time ``t.me/<bot>?start=<code>`` link (valid for 30
+        minutes).
+      tags:
+      - telegram
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TelegramLinkRequestRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TelegramLinkRequestRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TelegramLinkRequestRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TelegramLinkResponse'
+          description: ''
+  /api/watches/:
+    get:
+      operationId: watches_list
+      description: The user's own price watches. Filter with ``?component=<id>`` or
+        ``?build=<id>``.
+      parameters:
+      - in: query
+        name: build
+        schema:
+          type: integer
+        description: Only this build.
+      - in: query
+        name: component
+        schema:
+          type: integer
+        description: Only this part.
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - watches
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Watch'
+          description: ''
+    post:
+      operationId: watches_create
+      description: The user's own price watches. Filter with ``?component=<id>`` or
+        ``?build=<id>``.
+      tags:
+      - watches
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WatchRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/WatchRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/WatchRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Watch'
+          description: ''
+  /api/watches/{id}/:
+    get:
+      operationId: watches_retrieve
+      description: The user's own price watches. Filter with ``?component=<id>`` or
+        ``?build=<id>``.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this watch.
+        required: true
+      tags:
+      - watches
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Watch'
+          description: ''
+    patch:
+      operationId: watches_partial_update
+      description: The user's own price watches. Filter with ``?component=<id>`` or
+        ``?build=<id>``.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this watch.
+        required: true
+      tags:
+      - watches
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedWatchRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedWatchRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedWatchRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Watch'
+          description: ''
+    delete:
+      operationId: watches_destroy
+      description: The user's own price watches. Filter with ``?component=<id>`` or
+        ``?build=<id>``.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this watch.
+        required: true
+      tags:
+      - watches
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+components:
+  schemas:
+    AdvisorLanguageEnum:
+      enum:
+      - en
+      - uk
+      type: string
+      description: |-
+        * `en` - en
+        * `uk` - uk
+    AdvisorRequest:
+      type: object
+      properties:
+        budget:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          description: Amount in `currency`.
+        currency:
+          allOf:
+          - $ref: '#/components/schemas/CurrencyEnum'
+          default: USD
+          description: |-
+            UAH budgets are converted at the latest NBU rate; the catalog plans in USD.
+
+            * `USD` - USD
+            * `UAH` - UAH
+        use_case:
+          $ref: '#/components/schemas/UseCaseEnum'
+        preferences:
+          type: string
+          default: ''
+          maxLength: 1000
+        language:
+          allOf:
+          - $ref: '#/components/schemas/AdvisorLanguageEnum'
+          default: en
+          description: |-
+            Language of the summary and notes.
+
+            * `en` - en
+            * `uk` - uk
+      required:
+      - budget
+      - use_case
+    AdvisorResponse:
+      type: object
+      properties:
+        source:
+          $ref: '#/components/schemas/SourceEnum'
+        model:
+          type: string
+        summary:
+          type: string
+        notes:
+          type: array
+          items:
+            type: string
+        components:
+          type: array
+          items:
+            $ref: '#/components/schemas/ComponentBrief'
+        total_price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,2})?$
+        budget:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,6}(?:\.\d{0,2})?$
+          description: USD
+        budget_amount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          description: The budget as entered, in `budget_currency`.
+        budget_currency:
+          $ref: '#/components/schemas/CurrencyEnum'
+        compatibility:
+          $ref: '#/components/schemas/CompatibilityReport'
+      required:
+      - budget
+      - budget_amount
+      - budget_currency
+      - compatibility
+      - components
+      - model
+      - notes
+      - source
+      - summary
+      - total_price
+    AlertLanguageEnum:
+      enum:
+      - uk
+      - en
+      type: string
+      description: |-
+        * `uk` - Українська
+        * `en` - English
+    BuildDetail:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          maxLength: 100
+        description:
+          type: string
+        owner:
+          type: string
+          readOnly: true
+        is_public:
+          type: boolean
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/BuildItem'
+          readOnly: true
+        total_price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,2})?$
+          readOnly: true
+        compatibility:
+          allOf:
+          - $ref: '#/components/schemas/CompatibilityReport'
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - compatibility
+      - created_at
+      - id
+      - items
+      - name
+      - owner
+      - total_price
+      - updated_at
+    BuildItem:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        component:
+          allOf:
+          - $ref: '#/components/schemas/ComponentBrief'
+          readOnly: true
+        quantity:
+          type: integer
+          maximum: 32767
+          minimum: 0
+        line_total:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,2})?$
+          readOnly: true
+      required:
+      - component
+      - id
+      - line_total
+    BuildItemWriteRequest:
+      type: object
+      properties:
+        component:
+          type: integer
+        quantity:
+          type: integer
+          maximum: 8
+          minimum: 1
+          default: 1
+      required:
+      - component
+    BuildList:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          maxLength: 100
+        description:
+          type: string
+        owner:
+          type: string
+          readOnly: true
+        is_public:
+          type: boolean
+        total_price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,2})?$
+          readOnly: true
+        parts_count:
+          type: integer
+          readOnly: true
+        comments_count:
+          type: integer
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - comments_count
+      - created_at
+      - id
+      - name
+      - owner
+      - parts_count
+      - total_price
+      - updated_at
+    BuildWriteRequest:
+      type: object
+      description: |-
+        Create/update a build together with its component list.
+
+        Validation is layered on purpose:
+        * field level  – each item references an active component, quantity 1..8;
+        * ``validate_items`` – no duplicate components in one request;
+        * ``validate`` – cross-field domain rules via the compatibility engine.
+          This is the place for them: they depend on *all* items at once, which
+          no single field validator can see;
+        * database – unique (build, component) and the quantity range are also
+          constraints, so a bug in this serializer cannot corrupt data.
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        description:
+          type: string
+        is_public:
+          type: boolean
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/BuildItemWriteRequest'
+      required:
+      - name
+    Category:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        kind:
+          $ref: '#/components/schemas/CategoryKindEnum'
+        name:
+          type: string
+          maxLength: 64
+        slug:
+          type: string
+          maxLength: 50
+          pattern: ^[-a-zA-Z0-9_]+$
+        position:
+          type: integer
+          maximum: 32767
+          minimum: 0
+      required:
+      - id
+      - kind
+      - name
+      - slug
+    CategoryKindEnum:
+      enum:
+      - cpu
+      - motherboard
+      - ram
+      - gpu
+      - storage
+      - psu
+      - case
+      - cooler
+      type: string
+      description: |-
+        * `cpu` - Processor
+        * `motherboard` - Motherboard
+        * `ram` - Memory
+        * `gpu` - Graphics card
+        * `storage` - Storage
+        * `psu` - Power supply
+        * `case` - Case
+        * `cooler` - CPU cooler
+    CategoryRequest:
+      type: object
+      properties:
+        kind:
+          $ref: '#/components/schemas/CategoryKindEnum'
+        name:
+          type: string
+          minLength: 1
+          maxLength: 64
+        slug:
+          type: string
+          minLength: 1
+          maxLength: 50
+          pattern: ^[-a-zA-Z0-9_]+$
+        position:
+          type: integer
+          maximum: 32767
+          minimum: 0
+      required:
+      - kind
+      - name
+      - slug
+    CategoryStats:
+      type: object
+      properties:
+        kind:
+          type: string
+        name:
+          type: string
+        components:
+          type: integer
+        avg_price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+        min_price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+        max_price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+      required:
+      - avg_price
+      - components
+      - kind
+      - max_price
+      - min_price
+      - name
+    Comment:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        build:
+          type: integer
+          readOnly: true
+        author:
+          type: string
+          readOnly: true
+        text:
+          type: string
+          maxLength: 2000
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - author
+      - build
+      - created_at
+      - id
+      - text
+    CommentRequest:
+      type: object
+      properties:
+        text:
+          type: string
+          minLength: 1
+          maxLength: 2000
+      required:
+      - text
+    CompatibilityCheckRequest:
+      type: object
+      description: Input of the stateless ``POST /compatibility/check/`` endpoint.
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/BuildItemWriteRequest'
+      required:
+      - items
+    CompatibilityReport:
+      type: object
+      properties:
+        is_compatible:
+          type: boolean
+        is_complete:
+          type: boolean
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/Issue'
+        warnings:
+          type: array
+          items:
+            $ref: '#/components/schemas/Issue'
+        missing:
+          type: array
+          items:
+            type: string
+        estimated_wattage:
+          type: integer
+        recommended_psu_wattage:
+          type: integer
+      required:
+      - errors
+      - estimated_wattage
+      - is_compatible
+      - is_complete
+      - missing
+      - recommended_psu_wattage
+      - warnings
+    Component:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          maxLength: 128
+        slug:
+          type: string
+          maxLength: 160
+          pattern: ^[-a-zA-Z0-9_]+$
+        sku:
+          type: string
+          maxLength: 64
+        price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          description: Price in USD
+        price_uah:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,12}(?:\.\d{0,0})?$
+          nullable: true
+          readOnly: true
+        specs:
+          type: object
+          additionalProperties: {}
+        specs_complete:
+          type: boolean
+          readOnly: true
+        missing_specs:
+          type: array
+          items:
+            type: string
+          readOnly: true
+        popularity:
+          type: integer
+          readOnly: true
+          nullable: true
+          description: Interest index from the source (hotline.ua), 7-day average.
+        popularity_rank:
+          type: integer
+          readOnly: true
+          nullable: true
+          description: 1 = most popular in its category.
+        shop_count:
+          type: integer
+          readOnly: true
+          nullable: true
+          description: Shops selling it now (best listing); null = no market data.
+        listed:
+          type: boolean
+          readOnly: true
+          description: False when fewer than MARKET_MIN_SHOPS shops sell it (hidden
+            from the catalog).
+        price_change_30d:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,5}(?:\.\d{0,1})?$
+          readOnly: true
+          nullable: true
+          description: Change of the average market price over 30 days, %.
+        at_year_low:
+          type: boolean
+          readOnly: true
+          description: Price is at its lowest of the last 12 months.
+        image:
+          type: string
+          nullable: true
+          readOnly: true
+        images:
+          type: array
+          items:
+            type: string
+          readOnly: true
+        market:
+          allOf:
+          - $ref: '#/components/schemas/Market'
+          nullable: true
+          readOnly: true
+        is_active:
+          type: boolean
+        category:
+          allOf:
+          - $ref: '#/components/schemas/Category'
+          readOnly: true
+        manufacturer:
+          allOf:
+          - $ref: '#/components/schemas/Manufacturer'
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - at_year_low
+      - category
+      - id
+      - image
+      - images
+      - listed
+      - manufacturer
+      - market
+      - missing_specs
+      - name
+      - popularity
+      - popularity_rank
+      - price
+      - price_change_30d
+      - price_uah
+      - shop_count
+      - sku
+      - slug
+      - specs
+      - specs_complete
+      - updated_at
+    ComponentBrief:
+      type: object
+      description: Compact representation used inside builds and orders.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          maxLength: 128
+        slug:
+          type: string
+          maxLength: 160
+          pattern: ^[-a-zA-Z0-9_]+$
+        kind:
+          allOf:
+          - $ref: '#/components/schemas/CategoryKindEnum'
+          readOnly: true
+        manufacturer:
+          type: string
+          readOnly: true
+        price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          description: Price in USD
+        specs:
+          type: object
+          additionalProperties: {}
+          readOnly: true
+        image:
+          type: string
+          nullable: true
+          readOnly: true
+        market:
+          allOf:
+          - $ref: '#/components/schemas/Market'
+          nullable: true
+          readOnly: true
+        is_active:
+          type: boolean
+      required:
+      - id
+      - image
+      - kind
+      - manufacturer
+      - market
+      - name
+      - price
+      - slug
+      - specs
+    ComponentRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 128
+        slug:
+          type: string
+          minLength: 1
+          maxLength: 160
+          pattern: ^[-a-zA-Z0-9_]+$
+        sku:
+          type: string
+          minLength: 1
+          maxLength: 64
+        price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          description: Price in USD
+        specs:
+          type: object
+          additionalProperties: {}
+        is_active:
+          type: boolean
+        category_id:
+          type: integer
+          writeOnly: true
+        manufacturer_id:
+          type: integer
+          writeOnly: true
+      required:
+      - category_id
+      - manufacturer_id
+      - name
+      - price
+      - sku
+      - slug
+      - specs
+    CurrencyEnum:
+      enum:
+      - USD
+      - UAH
+      type: string
+      description: |-
+        * `USD` - USD
+        * `UAH` - UAH
+    ExchangeRate:
+      type: object
+      properties:
+        currency:
+          type: string
+          maxLength: 3
+        rate:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,4})?$
+        rate_date:
+          type: string
+          format: date
+        fetched_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - currency
+      - fetched_at
+      - rate
+      - rate_date
+    Issue:
+      type: object
+      properties:
+        code:
+          type: string
+        severity:
+          $ref: '#/components/schemas/SeverityEnum'
+        message:
+          type: string
+        component_ids:
+          type: array
+          items:
+            type: integer
+        params:
+          type: object
+          additionalProperties: {}
+          description: Values for rendering a localised message by `code`.
+      required:
+      - code
+      - component_ids
+      - message
+      - params
+      - severity
+    Listing:
+      type: object
+      description: Live market data of the component's primary listing.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        title:
+          type: string
+          description: Product name on the source
+          maxLength: 300
+        images: {}
+        last_error:
+          type: string
+          maxLength: 500
+        source:
+          type: string
+          description: Host name, e.g. hotline.ua
+          maxLength: 64
+        url:
+          type: string
+          format: uri
+          maxLength: 500
+        low_price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,2})?$
+          nullable: true
+        high_price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,2})?$
+          nullable: true
+        median_price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,2})?$
+          nullable: true
+        currency:
+          type: string
+          maxLength: 3
+        offer_count:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+          nullable: true
+        in_stock:
+          type: boolean
+          nullable: true
+        rating:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,1}(?:\.\d{0,2})?$
+          nullable: true
+        review_count:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+          nullable: true
+        status:
+          $ref: '#/components/schemas/ListingStatusEnum'
+        checked_at:
+          type: string
+          format: date-time
+          nullable: true
+      required:
+      - id
+      - source
+      - url
+    ListingCreateRequest:
+      type: object
+      properties:
+        url:
+          type: string
+          format: uri
+          minLength: 1
+          maxLength: 500
+      required:
+      - url
+    ListingStatusEnum:
+      enum:
+      - pending
+      - ok
+      - no_offers
+      - mismatch
+      - error
+      type: string
+      description: |-
+        * `pending` - Not checked yet
+        * `ok` - Up to date
+        * `no_offers` - No offers on the page
+        * `mismatch` - Page shows a different product
+        * `error` - Fetch failed
+    Manufacturer:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          maxLength: 64
+        slug:
+          type: string
+          maxLength: 50
+          pattern: ^[-a-zA-Z0-9_]+$
+        website:
+          oneOf:
+          - type: string
+            format: uri
+            maxLength: 200
+          - type: string
+            maxLength: 0
+      required:
+      - id
+      - name
+      - slug
+    ManufacturerRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 64
+        slug:
+          type: string
+          minLength: 1
+          maxLength: 50
+          pattern: ^[-a-zA-Z0-9_]+$
+        website:
+          oneOf:
+          - type: string
+            format: uri
+            maxLength: 200
+          - type: string
+            maxLength: 0
+      required:
+      - name
+      - slug
+    Market:
+      type: object
+      description: Live market data of the component's primary listing.
+      properties:
+        source:
+          type: string
+          description: Host name, e.g. hotline.ua
+          maxLength: 64
+        url:
+          type: string
+          format: uri
+          maxLength: 500
+        low_price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,2})?$
+          nullable: true
+        high_price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,2})?$
+          nullable: true
+        median_price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,2})?$
+          nullable: true
+        currency:
+          type: string
+          maxLength: 3
+        offer_count:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+          nullable: true
+        in_stock:
+          type: boolean
+          nullable: true
+        rating:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,1}(?:\.\d{0,2})?$
+          nullable: true
+        review_count:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+          nullable: true
+        status:
+          $ref: '#/components/schemas/ListingStatusEnum'
+        checked_at:
+          type: string
+          format: date-time
+          nullable: true
+      required:
+      - source
+      - url
+    Order:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        build:
+          type: integer
+          nullable: true
+        status:
+          $ref: '#/components/schemas/OrderStatusEnum'
+        total:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,2})?$
+        shipping_address:
+          type: string
+        payment_provider:
+          type: string
+          maxLength: 16
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrderItem'
+          readOnly: true
+        allowed_transitions:
+          type: array
+          items:
+            type: string
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+        paid_at:
+          type: string
+          format: date-time
+          nullable: true
+      required:
+      - allowed_transitions
+      - created_at
+      - id
+      - items
+      - shipping_address
+      - total
+      - updated_at
+    OrderCreateRequest:
+      type: object
+      properties:
+        build:
+          type: integer
+        shipping_address:
+          type: string
+          minLength: 1
+          maxLength: 500
+      required:
+      - build
+      - shipping_address
+    OrderItem:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        component:
+          type: integer
+        component_name:
+          type: string
+          maxLength: 200
+        unit_price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+        quantity:
+          type: integer
+          maximum: 32767
+          minimum: 0
+        line_total:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,2})?$
+          readOnly: true
+      required:
+      - component
+      - component_name
+      - id
+      - line_total
+      - quantity
+      - unit_price
+    OrderStatusEnum:
+      enum:
+      - pending
+      - paid
+      - shipped
+      - delivered
+      - cancelled
+      type: string
+      description: |-
+        * `pending` - Awaiting payment
+        * `paid` - Paid
+        * `shipped` - Shipped
+        * `delivered` - Delivered
+        * `cancelled` - Cancelled
+    PaginatedBuildListList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/BuildList'
+    PaginatedComponentList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Component'
+    PaginatedExchangeRateList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExchangeRate'
+    PaginatedOrderList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Order'
+    PatchedBuildWriteRequest:
+      type: object
+      description: |-
+        Create/update a build together with its component list.
+
+        Validation is layered on purpose:
+        * field level  – each item references an active component, quantity 1..8;
+        * ``validate_items`` – no duplicate components in one request;
+        * ``validate`` – cross-field domain rules via the compatibility engine.
+          This is the place for them: they depend on *all* items at once, which
+          no single field validator can see;
+        * database – unique (build, component) and the quantity range are also
+          constraints, so a bug in this serializer cannot corrupt data.
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        description:
+          type: string
+        is_public:
+          type: boolean
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/BuildItemWriteRequest'
+    PatchedCommentRequest:
+      type: object
+      properties:
+        text:
+          type: string
+          minLength: 1
+          maxLength: 2000
+    PatchedComponentRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 128
+        slug:
+          type: string
+          minLength: 1
+          maxLength: 160
+          pattern: ^[-a-zA-Z0-9_]+$
+        sku:
+          type: string
+          minLength: 1
+          maxLength: 64
+        price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          description: Price in USD
+        specs:
+          type: object
+          additionalProperties: {}
+        is_active:
+          type: boolean
+        category_id:
+          type: integer
+          writeOnly: true
+        manufacturer_id:
+          type: integer
+          writeOnly: true
+    PatchedTelegramStatusRequest:
+      type: object
+      properties:
+        enabled:
+          type: boolean
+          description: Send price alerts.
+        quiet_hours:
+          type: boolean
+          description: Hold alerts between 22:00 and 08:00 (Kyiv time).
+        language:
+          $ref: '#/components/schemas/AlertLanguageEnum'
+    PatchedUserRequest:
+      type: object
+      properties:
+        email:
+          title: Email address
+          oneOf:
+          - type: string
+            format: email
+            maxLength: 254
+          - type: string
+            maxLength: 0
+        first_name:
+          type: string
+          maxLength: 150
+        last_name:
+          type: string
+          maxLength: 150
+    PatchedWatchRequest:
+      type: object
+      properties:
+        component:
+          type: integer
+          nullable: true
+        build:
+          type: integer
+          nullable: true
+        target_price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,2})?$
+          nullable: true
+          description: USD. Alert once the price reaches it (optional).
+        threshold_percent:
+          type: integer
+          maximum: 50
+          minimum: 1
+          description: Alert when the price moves this much, either way.
+    PaymentSession:
+      type: object
+      properties:
+        provider:
+          type: string
+        checkout_url:
+          type: string
+          format: uri
+          nullable: true
+        confirmed:
+          type: boolean
+        order:
+          $ref: '#/components/schemas/Order'
+      required:
+      - checkout_url
+      - confirmed
+      - order
+      - provider
+    PopularComponent:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        slug:
+          type: string
+        kind:
+          type: string
+        manufacturer:
+          type: string
+        price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+        build_count:
+          type: integer
+        rank:
+          type: integer
+      required:
+      - build_count
+      - id
+      - kind
+      - manufacturer
+      - name
+      - price
+      - slug
+    PriceHistory:
+      type: object
+      properties:
+        price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+        low_price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          nullable: true
+        high_price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          nullable: true
+        source:
+          type: string
+          maxLength: 32
+        recorded_at:
+          type: string
+          format: date-time
+      required:
+      - price
+    PricePosition:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+        price_rank:
+          type: integer
+        percentile:
+          type: number
+          format: double
+      required:
+      - id
+      - name
+      - percentile
+      - price
+      - price_rank
+    Register:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        username:
+          type: string
+          description: Required. 150 characters or fewer. Letters, digits and @/./+/-/_
+            only.
+          pattern: ^[\w.@+-]+$
+          maxLength: 150
+        email:
+          title: Email address
+          oneOf:
+          - type: string
+            format: email
+            maxLength: 254
+          - type: string
+            maxLength: 0
+      required:
+      - email
+      - id
+      - username
+    RegisterRequest:
+      type: object
+      properties:
+        username:
+          type: string
+          minLength: 1
+          description: Required. 150 characters or fewer. Letters, digits and @/./+/-/_
+            only.
+          pattern: ^[\w.@+-]+$
+          maxLength: 150
+        email:
+          title: Email address
+          oneOf:
+          - type: string
+            format: email
+            maxLength: 254
+          - type: string
+            maxLength: 0
+        password:
+          type: string
+          writeOnly: true
+          minLength: 1
+      required:
+      - email
+      - password
+      - username
+    SeverityEnum:
+      enum:
+      - error
+      - warning
+      type: string
+      description: |-
+        * `error` - error
+        * `warning` - warning
+    SourceEnum:
+      enum:
+      - claude
+      - rule_based
+      type: string
+      description: |-
+        * `claude` - claude
+        * `rule_based` - rule_based
+    StatusChangeRequest:
+      type: object
+      properties:
+        status:
+          $ref: '#/components/schemas/OrderStatusEnum'
+      required:
+      - status
+    TelegramLinkRequestRequest:
+      type: object
+      properties:
+        language:
+          allOf:
+          - $ref: '#/components/schemas/AlertLanguageEnum'
+          default: uk
+    TelegramLinkResponse:
+      type: object
+      properties:
+        url:
+          type: string
+          format: uri
+          description: 'Open it: Telegram starts the bot with a one-time code.'
+        expires_in:
+          type: integer
+          description: Seconds.
+      required:
+      - expires_in
+      - url
+    TelegramStatus:
+      type: object
+      properties:
+        linked:
+          type: boolean
+          readOnly: true
+        username:
+          type: string
+          readOnly: true
+        enabled:
+          type: boolean
+          description: Send price alerts.
+        quiet_hours:
+          type: boolean
+          description: Hold alerts between 22:00 and 08:00 (Kyiv time).
+        language:
+          $ref: '#/components/schemas/AlertLanguageEnum'
+        linked_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        bot_username:
+          type: string
+          nullable: true
+          readOnly: true
+        bot_url:
+          type: string
+          format: uri
+          nullable: true
+          readOnly: true
+      required:
+      - bot_url
+      - bot_username
+      - linked
+      - linked_at
+      - username
+    TokenObtainPair:
+      type: object
+      properties:
+        access:
+          type: string
+          readOnly: true
+        refresh:
+          type: string
+          readOnly: true
+      required:
+      - access
+      - refresh
+    TokenObtainPairRequest:
+      type: object
+      properties:
+        username:
+          type: string
+          writeOnly: true
+          minLength: 1
+        password:
+          type: string
+          writeOnly: true
+          minLength: 1
+      required:
+      - password
+      - username
+    TokenRefresh:
+      type: object
+      properties:
+        access:
+          type: string
+          readOnly: true
+        refresh:
+          type: string
+      required:
+      - access
+      - refresh
+    TokenRefreshRequest:
+      type: object
+      properties:
+        refresh:
+          type: string
+          minLength: 1
+      required:
+      - refresh
+    UseCaseEnum:
+      enum:
+      - gaming
+      - workstation
+      - streaming
+      - office
+      type: string
+      description: |-
+        * `gaming` - gaming
+        * `workstation` - workstation
+        * `streaming` - streaming
+        * `office` - office
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        username:
+          type: string
+          readOnly: true
+          description: Required. 150 characters or fewer. Letters, digits and @/./+/-/_
+            only.
+        email:
+          title: Email address
+          oneOf:
+          - type: string
+            format: email
+            maxLength: 254
+          - type: string
+            maxLength: 0
+        first_name:
+          type: string
+          maxLength: 150
+        last_name:
+          type: string
+          maxLength: 150
+        is_staff:
+          type: boolean
+          readOnly: true
+          title: Staff status
+          description: Designates whether the user can log into this admin site.
+        date_joined:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - date_joined
+      - id
+      - is_staff
+      - username
+    UserRequest:
+      type: object
+      properties:
+        email:
+          title: Email address
+          oneOf:
+          - type: string
+            format: email
+            maxLength: 254
+          - type: string
+            maxLength: 0
+        first_name:
+          type: string
+          maxLength: 150
+        last_name:
+          type: string
+          maxLength: 150
+    Watch:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        component:
+          type: integer
+          nullable: true
+        build:
+          type: integer
+          nullable: true
+        item:
+          allOf:
+          - $ref: '#/components/schemas/WatchItem'
+          readOnly: true
+        target_price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,2})?$
+          nullable: true
+          description: USD. Alert once the price reaches it (optional).
+        threshold_percent:
+          type: integer
+          maximum: 50
+          minimum: 1
+          description: Alert when the price moves this much, either way.
+        baseline_price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,2})?$
+          readOnly: true
+          description: USD. Price when the watch was created or last alerted; changes
+            count from it.
+        current_price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,2})?$
+          nullable: true
+          readOnly: true
+        change_percent:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,5}(?:\.\d{0,1})?$
+          nullable: true
+          readOnly: true
+        last_notified_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - baseline_price
+      - change_percent
+      - created_at
+      - current_price
+      - id
+      - item
+      - last_notified_at
+    WatchItem:
+      type: object
+      description: What a watch points at, flattened for lists (profile page, bot).
+      properties:
+        kind:
+          $ref: '#/components/schemas/WatchItemKindEnum'
+        name:
+          type: string
+        path:
+          type: string
+          description: Site path, e.g. /catalog/<slug> or /builds/<id>.
+        image:
+          type: string
+          nullable: true
+        category:
+          type: string
+          nullable: true
+      required:
+      - category
+      - image
+      - kind
+      - name
+      - path
+    WatchItemKindEnum:
+      enum:
+      - component
+      - build
+      type: string
+      description: |-
+        * `component` - component
+        * `build` - build
+    WatchRequest:
+      type: object
+      properties:
+        component:
+          type: integer
+          nullable: true
+        build:
+          type: integer
+          nullable: true
+        target_price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,2})?$
+          nullable: true
+          description: USD. Alert once the price reaches it (optional).
+        threshold_percent:
+          type: integer
+          maximum: 50
+          minimum: 1
+          description: Alert when the price moves this much, either way.
+  securitySchemes:
+    jwtAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

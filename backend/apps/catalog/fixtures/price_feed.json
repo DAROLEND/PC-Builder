@@ -1,0 +1,270 @@
+{
+ "supplier": "Demo distributor feed",
+ "currency": "USD",
+ "items": [
+  {
+   "sku": "AMD-RYZEN-5-7600",
+   "price": "181.75"
+  },
+  {
+   "sku": "AMD-RYZEN-5-9600X",
+   "price": "171.19"
+  },
+  {
+   "sku": "AMD-RYZEN-7-7800X3D",
+   "price": "327.04"
+  },
+  {
+   "sku": "AMD-RYZEN-7-9800X3D",
+   "price": "430.23"
+  },
+  {
+   "sku": "AMD-RYZEN-9-9950X",
+   "price": "448.96"
+  },
+  {
+   "sku": "AMD-RYZEN-5-5600",
+   "price": "137.55"
+  },
+  {
+   "sku": "AMD-RYZEN-5-5600G",
+   "price": "193.53"
+  },
+  {
+   "sku": "AMD-RYZEN-7-5700X3D",
+   "price": "208.00"
+  },
+  {
+   "sku": "INTEL-CORE-I5-12400F",
+   "price": "150.45"
+  },
+  {
+   "sku": "INTEL-CORE-I5-14600K",
+   "price": "288.49"
+  },
+  {
+   "sku": "INTEL-CORE-I7-14700K",
+   "price": "410.06"
+  },
+  {
+   "sku": "INTEL-CORE-ULTRA-5-245K",
+   "price": "185.48"
+  },
+  {
+   "sku": "INTEL-CORE-ULTRA-7-265K",
+   "price": "299.59"
+  },
+  {
+   "sku": "MSI-PRO-B650M-A-WIFI",
+   "price": "172.77"
+  },
+  {
+   "sku": "ASUS-TUF-GAMING-B650-PLUS-WIFI",
+   "price": "171.68"
+  },
+  {
+   "sku": "GIGABYTE-X870E-AORUS-ELITE-WIFI7",
+   "price": "328.60"
+  },
+  {
+   "sku": "ASROCK-B650I-LIGHTNING-WIFI",
+   "price": "175.36"
+  },
+  {
+   "sku": "ASROCK-A620M-HDVM2",
+   "price": "85.00"
+  },
+  {
+   "sku": "MSI-MAG-B550-TOMAHAWK",
+   "price": "140.00"
+  },
+  {
+   "sku": "ASROCK-B450M-PRO4",
+   "price": "75.00"
+  },
+  {
+   "sku": "GIGABYTE-B760M-DS3H-DDR4",
+   "price": "93.17"
+  },
+  {
+   "sku": "ASUS-PRIME-Z790-P-WIFI",
+   "price": "211.23"
+  },
+  {
+   "sku": "ASUS-TUF-GAMING-Z890-PLUS-WIFI",
+   "price": "305.24"
+  },
+  {
+   "sku": "MSI-PRO-B860M-A-WIFI",
+   "price": "256.55"
+  },
+  {
+   "sku": "KINGSTON-FURY-BEAST-16GB-2X8GB-DDR4-3200",
+   "price": "195.64"
+  },
+  {
+   "sku": "CORSAIR-VENGEANCE-LPX-32GB-2X16GB-DDR4-3200",
+   "price": "236.28"
+  },
+  {
+   "sku": "CRUCIAL-PRO-32GB-2X16GB-DDR5-5600",
+   "price": "667.45"
+  },
+  {
+   "sku": "GSKILL-FLARE-X5-32GB-2X16GB-DDR5-6000",
+   "price": "647.34"
+  },
+  {
+   "sku": "KINGSTON-FURY-BEAST-32GB-2X16GB-DDR5-6000",
+   "price": "607.80"
+  },
+  {
+   "sku": "CORSAIR-VENGEANCE-RGB-64GB-2X32GB-DDR5-6000",
+   "price": "1924.09"
+  },
+  {
+   "sku": "ASROCK-INTEL-ARC-B580-CHALLENGER-12GB-OC",
+   "price": "382.08"
+  },
+  {
+   "sku": "SAPPHIRE-PULSE-RADEON-RX-7600-8GB",
+   "price": "407.81"
+  },
+  {
+   "sku": "MSI-GEFORCE-RTX-4060-VENTUS-2X-BLACK-8G-OC",
+   "price": "285.00"
+  },
+  {
+   "sku": "GIGABYTE-GEFORCE-RTX-5060-TI-WINDFORCE-OC-16G",
+   "price": "784.05"
+  },
+  {
+   "sku": "SAPPHIRE-PULSE-RADEON-RX-7800-XT-16GB",
+   "price": "480.00"
+  },
+  {
+   "sku": "SAPPHIRE-PULSE-RADEON-RX-9070-XT-16GB",
+   "price": "1020.03"
+  },
+  {
+   "sku": "ASUS-TUF-GAMING-GEFORCE-RTX-5070-TI-16GB",
+   "price": "1522.62"
+  },
+  {
+   "sku": "MSI-GEFORCE-RTX-5080-GAMING-TRIO-16G",
+   "price": "1738.07"
+  },
+  {
+   "sku": "ASUS-ROG-ASTRAL-GEFORCE-RTX-5090-32GB",
+   "price": "5573.25"
+  },
+  {
+   "sku": "CRUCIAL-P3-PLUS-1TB",
+   "price": "192.17"
+  },
+  {
+   "sku": "SAMSUNG-990-PRO-1TB",
+   "price": "216.02"
+  },
+  {
+   "sku": "SAMSUNG-990-PRO-2TB",
+   "price": "362.69"
+  },
+  {
+   "sku": "WESTERN-DIGITAL-WD_BLACK-SN850X-2TB",
+   "price": "393.89"
+  },
+  {
+   "sku": "KINGSTON-A400-960GB",
+   "price": "142.81"
+  },
+  {
+   "sku": "SEAGATE-BARRACUDA-2TB-HDD",
+   "price": "138.76"
+  },
+  {
+   "sku": "DEEPCOOL-AK400",
+   "price": "31.17"
+  },
+  {
+   "sku": "THERMALRIGHT-PEERLESS-ASSASSIN-120-SE",
+   "price": "49.67"
+  },
+  {
+   "sku": "NOCTUA-NH-L9A-AM5",
+   "price": "51.21"
+  },
+  {
+   "sku": "NOCTUA-NH-D15-G2",
+   "price": "147.78"
+  },
+  {
+   "sku": "ARCTIC-LIQUID-FREEZER-III-280",
+   "price": "197.97"
+  },
+  {
+   "sku": "ARCTIC-LIQUID-FREEZER-III-360",
+   "price": "85.58"
+  },
+  {
+   "sku": "COOLER-MASTER-MWE-600-BRONZE-V2",
+   "price": "45.00"
+  },
+  {
+   "sku": "BE-QUIET-PURE-POWER-12-550W",
+   "price": "86.76"
+  },
+  {
+   "sku": "CORSAIR-RM650E",
+   "price": "100.30"
+  },
+  {
+   "sku": "SEASONIC-FOCUS-GX-750",
+   "price": "136.68"
+  },
+  {
+   "sku": "CORSAIR-RM850X",
+   "price": "139.96"
+  },
+  {
+   "sku": "CORSAIR-SF750",
+   "price": "184.23"
+  },
+  {
+   "sku": "SEASONIC-FOCUS-GX-1000-ATX-31",
+   "price": "218.45"
+  },
+  {
+   "sku": "BE-QUIET-DARK-POWER-PRO-13-1300W",
+   "price": "412.24"
+  },
+  {
+   "sku": "DEEPCOOL-CH370",
+   "price": "47.31"
+  },
+  {
+   "sku": "NZXT-H5-FLOW-BLACK",
+   "price": "63.52"
+  },
+  {
+   "sku": "MONTECH-AIR-903-MAX",
+   "price": "93.72"
+  },
+  {
+   "sku": "FRACTAL-DESIGN-NORTH",
+   "price": "176.00"
+  },
+  {
+   "sku": "LIAN-LI-O11-DYNAMIC-EVO-RGB-BLACK",
+   "price": "194.75"
+  },
+  {
+   "sku": "COOLER-MASTER-MASTERBOX-NR200P",
+   "price": "93.17"
+  },
+  {
+   "sku": "DISCONTINUED-PART-123",
+   "price": "99.00"
+  }
+ ]
+}
