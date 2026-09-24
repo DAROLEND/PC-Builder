@@ -71,7 +71,7 @@ npm run dev          # http://localhost:5173
 ```
 </details>
 
-Deployment to a VPS with automatic HTTPS: **[docs/DEPLOY.md](docs/DEPLOY.md)**.
+Deployment to a VPS with automatic HTTPS, or a free demo on Render + Supabase: **[docs/DEPLOY.md](docs/DEPLOY.md)**.
 
 ---
 

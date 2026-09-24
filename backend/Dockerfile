@@ -3,7 +3,7 @@ FROM python:3.13-slim
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PIP_NO_CACHE_DIR=1 \
-    PIP_DISABLE_PIP_VERSION_CHECK=1
+    PIP_DISABLE_PIP_VERSION_CHECK=1     PORT=8000     WEB_CONCURRENCY=3
 
 WORKDIR /app
 
@@ -22,4 +22,6 @@ USER app
 EXPOSE 8000
 
 ENTRYPOINT ["./docker-entrypoint.sh"]
-CMD ["gunicorn", "config.wsgi:application", "--bind", "0.0.0.0:8000", "--workers", "3", "--timeout", "120", "--access-logfile", "-"]
+# gunicorn binds to 0.0.0.0:$PORT and starts $WEB_CONCURRENCY workers, so a host
+# like Render can set its own port and a smaller worker count for 512 MB.
+CMD ["gunicorn", "config.wsgi:application", "--timeout", "120", "--access-logfile", "-"]

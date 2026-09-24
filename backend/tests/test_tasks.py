@@ -4,6 +4,7 @@ from decimal import Decimal
 
 import pytest
 import responses
+from django.core.management import call_command
 
 from apps.catalog.integrations import IntegrationError, fetch_nbu_rate
 from apps.catalog.models import Component, ExchangeRate, PriceHistory
@@ -33,6 +34,15 @@ def test_update_exchange_rate_stores_nbu_rate():
     rate = ExchangeRate.objects.get()
     assert rate.rate == Decimal("41.4567")
     assert rate.rate_date == date(2026, 9, 23)
+
+
+@responses.activate
+def test_update_exchange_rate_command_survives_nbu_outage(capsys):
+    # Runs on every container start: an NBU outage must not stop the site from booting.
+    responses.get(NBU_URL, status=503)
+    call_command("update_exchange_rate")
+    assert "NBU rate unavailable" in capsys.readouterr().out
+    assert not ExchangeRate.objects.exists()
 
 
 @responses.activate
