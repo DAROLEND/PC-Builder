@@ -239,3 +239,15 @@ def test_hryvnia_budget_needs_an_exchange_rate(auth_api, db):
         "/api/advisor/", {"budget": "50000", "currency": "UAH", "use_case": "gaming"}
     )
     assert resp.status_code == 400 and "currency" in resp.data
+
+
+def test_daily_ai_quota_falls_back_to_the_planner(settings, auth_api):
+    settings.ANTHROPIC_API_KEY = "test-key"
+    settings.ADVISOR_DAILY_LLM_LIMIT = 1
+    client = ScriptedClient([message(stop_reason="refusal")])
+    with mock.patch.object(llm.anthropic, "Anthropic", return_value=client) as anthropic:
+        auth_api.post("/api/advisor/", {"budget": "1000", "use_case": "gaming"})  # uses the quota
+        resp = auth_api.post("/api/advisor/", {"budget": "1000", "use_case": "gaming"})
+    assert anthropic.call_count == 1  # the second request never reached Claude
+    assert resp.data["source"] == "rule_based"
+    assert any("quota" in n for n in resp.data["notes"])

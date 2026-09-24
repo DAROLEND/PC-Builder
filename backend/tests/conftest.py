@@ -32,6 +32,10 @@ def _celery_eager(settings):
     settings.FRONTEND_URL = "https://pcbuilder.example"
     # Tests mock every HTTP call; the real default (off) is tested explicitly.
     settings.MARKET_FETCH_ENABLED = True
+    # Throttles and the AI quota count in the cache; every test starts from zero.
+    from django.core.cache import cache
+
+    cache.clear()
 
 
 @pytest.fixture

@@ -5,6 +5,7 @@ settings module works locally, in Docker Compose, in CI and in production.
 """
 
 import os
+import sys
 from datetime import timedelta
 from pathlib import Path
 
@@ -45,8 +46,16 @@ def env_list(name: str, default: str = "") -> list[str]:
     return [item.strip() for item in os.environ.get(name, default).split(",") if item.strip()]
 
 
-SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", "dev-only-insecure-secret-key-change-me")
+INSECURE_DEFAULT_KEY = "dev-only-insecure-secret-key-change-me"
+SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", INSECURE_DEFAULT_KEY)
 DEBUG = env_bool("DJANGO_DEBUG", False)
+TESTING = "pytest" in sys.modules
+if not DEBUG and not TESTING and SECRET_KEY == INSECURE_DEFAULT_KEY:
+    # A production server must never run with the key from the repository:
+    # it signs sessions, password-reset links and JWTs.
+    from django.core.exceptions import ImproperlyConfigured
+
+    raise ImproperlyConfigured("Set DJANGO_SECRET_KEY (or DJANGO_DEBUG=1 for local development).")
 ALLOWED_HOSTS = env_list("DJANGO_ALLOWED_HOSTS", "localhost,127.0.0.1,backend")
 CSRF_TRUSTED_ORIGINS = env_list("DJANGO_CSRF_TRUSTED_ORIGINS", "")
 
@@ -158,6 +167,9 @@ REST_FRAMEWORK = {
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
     "DEFAULT_THROTTLE_RATES": {
         "advisor": os.environ.get("ADVISOR_THROTTLE_RATE", "10/hour"),
+        # Per client IP: slows down sign-up spam and password guessing.
+        "register": os.environ.get("REGISTER_THROTTLE_RATE", "10/hour"),
+        "login": os.environ.get("LOGIN_THROTTLE_RATE", "30/hour"),
     },
     "TEST_REQUEST_DEFAULT_FORMAT": "json",
 }
@@ -278,6 +290,9 @@ UNPAID_ORDER_TTL_HOURS = int(os.environ.get("UNPAID_ORDER_TTL_HOURS", "48"))
 ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY", "")
 ADVISOR_MODEL = os.environ.get("ADVISOR_MODEL", "claude-opus-5")
 ADVISOR_MAX_TOOL_ROUNDS = int(os.environ.get("ADVISOR_MAX_TOOL_ROUNDS", "12"))
+# Site-wide cap on Claude calls per day (each costs money and sign-up is open).
+# Past it the rule-based planner answers, with a note. 0 = no AI calls at all.
+ADVISOR_DAILY_LLM_LIMIT = int(os.environ.get("ADVISOR_DAILY_LLM_LIMIT", "100"))
 # Interactive web request: medium effort keeps latency reasonable.
 ADVISOR_EFFORT = os.environ.get("ADVISOR_EFFORT", "medium")
 
@@ -289,6 +304,13 @@ LOGGING = {
 }
 
 if not DEBUG:
+    # TLS ends at the reverse proxy (Caddy/nginx), which sets X-Forwarded-Proto.
     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
     SESSION_COOKIE_SECURE = env_bool("SECURE_COOKIES", True)
     CSRF_COOKIE_SECURE = env_bool("SECURE_COOKIES", True)
+    # Enable only once HTTPS works: browsers remember it for the whole period.
+    SECURE_HSTS_SECONDS = int(os.environ.get("SECURE_HSTS_SECONDS", "0"))
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = False
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+    SECURE_REFERRER_POLICY = "same-origin"
+    X_FRAME_OPTIONS = "DENY"

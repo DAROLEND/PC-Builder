@@ -1,0 +1,11 @@
+# HTTPS for the whole site. Caddy obtains and renews the certificate for $DOMAIN
+# by itself; the domain's A record must point at this server.
+{$DOMAIN} {
+	encode zstd gzip
+	reverse_proxy frontend:80
+	header {
+		Strict-Transport-Security "max-age=31536000"
+		X-Content-Type-Options "nosniff"
+		Referrer-Policy "same-origin"
+	}
+}
