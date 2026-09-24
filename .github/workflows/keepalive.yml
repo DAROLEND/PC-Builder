@@ -1,0 +1,18 @@
+# Free Supabase projects pause after a week without database activity.
+# One request a day wakes the Render API, which queries the database.
+# Set the repository variable DEMO_API_URL (Settings → Secrets and variables →
+# Actions → Variables), e.g. https://pcbuilder-api.onrender.com
+name: Keep demo alive
+
+on:
+  schedule:
+    - cron: "17 6 * * *"
+  workflow_dispatch:
+
+jobs:
+  ping:
+    if: vars.DEMO_API_URL != ''
+    runs-on: ubuntu-latest
+    steps:
+      - name: Query the catalog (cold start can take a minute)
+        run: curl --fail --silent --show-error --retry 5 --retry-delay 20 --retry-all-errors --max-time 90 "${{ vars.DEMO_API_URL }}/api/components/?page_size=1" -o /dev/null

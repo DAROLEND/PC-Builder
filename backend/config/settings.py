@@ -58,6 +58,11 @@ if not DEBUG and not TESTING and SECRET_KEY == INSECURE_DEFAULT_KEY:
     raise ImproperlyConfigured("Set DJANGO_SECRET_KEY (or DJANGO_DEBUG=1 for local development).")
 ALLOWED_HOSTS = env_list("DJANGO_ALLOWED_HOSTS", "localhost,127.0.0.1,backend")
 CSRF_TRUSTED_ORIGINS = env_list("DJANGO_CSRF_TRUSTED_ORIGINS", "")
+# Render sets this to the service's own hostname (e.g. pcbuilder-api-x1y2.onrender.com),
+# so the service works even when the name in render.yaml was already taken.
+if render_host := os.environ.get("RENDER_EXTERNAL_HOSTNAME"):
+    ALLOWED_HOSTS.append(render_host)
+    CSRF_TRUSTED_ORIGINS.append(f"https://{render_host}")
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -119,7 +124,10 @@ DATABASES = {
     "default": dj_database_url.config(
         env="DATABASE_URL",
         default="postgres://pcbuilder:pcbuilder@localhost:5432/pcbuilder",
-        conn_max_age=60,
+        # A hosted Postgres behind a pooler (Supabase) limits client connections:
+        # DB_CONN_MAX_AGE=0 closes each connection after the request.
+        conn_max_age=int(os.environ.get("DB_CONN_MAX_AGE", "60")),
+        conn_health_checks=True,
     )
 }
 

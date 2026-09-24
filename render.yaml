@@ -1,39 +1,52 @@
-# Render Blueprint: New → Blueprint → pick this repo.
-# Free plan: web service + Postgres + Key Value work; background workers are a
-# paid feature, so the free setup runs Celery beat+worker only if you upgrade
-# (without them the site works; prices and exchange rates just don't refresh).
+# Free demo on Render + Supabase: see docs/DEPLOY.md, "Free hosting".
+# Render: New → Blueprint → pick this repo. It asks for the values marked
+# `sync: false` (DATABASE_URL is the Supabase *session pooler* URI).
+#
+# Free-plan trade-offs: background workers are paid, so there is no Celery
+# worker/beat and no Telegram bot. Tasks run inline (CELERY_TASK_ALWAYS_EAGER),
+# and the NBU rate is refreshed on every start. The API sleeps after 15 idle
+# minutes; the first request then takes up to a minute.
 services:
   - type: web
     name: pcbuilder-api
     runtime: docker
+    region: frankfurt
     dockerContext: ./backend
     dockerfilePath: ./backend/Dockerfile
     plan: free
     healthCheckPath: /health/
     envVars:
       - key: DATABASE_URL
-        fromDatabase:
-          name: pcbuilder-db
-          property: connectionString
+        sync: false
+      - key: DB_CONN_MAX_AGE
+        value: "0"
       - key: REDIS_URL
         fromService:
           type: keyvalue
           name: pcbuilder-redis
           property: connectionString
+      - key: CELERY_TASK_ALWAYS_EAGER
+        value: "1"
+      - key: WEB_CONCURRENCY
+        value: "2"
       - key: DJANGO_SECRET_KEY
         generateValue: true
+      # The service's own *.onrender.com host is added automatically
+      # (RENDER_EXTERNAL_HOSTNAME); list extra hosts here.
       - key: DJANGO_ALLOWED_HOSTS
-        value: pcbuilder-api.onrender.com
-      - key: DJANGO_CSRF_TRUSTED_ORIGINS
-        value: https://pcbuilder-api.onrender.com,https://pcbuilder.onrender.com
+        value: localhost
       - key: FRONTEND_URL
         value: https://pcbuilder.onrender.com
       - key: RUN_MIGRATIONS
         value: "1"
       - key: SEED_DEMO_DATA
         value: "1"
+      - key: MARKET_FETCH_ENABLED
+        value: "0"
       - key: ANTHROPIC_API_KEY
         sync: false
+      - key: ADVISOR_DAILY_LLM_LIMIT
+        value: "50"
       - key: PAYMENT_PROVIDER
         value: fake
 
@@ -43,6 +56,7 @@ services:
     rootDir: frontend
     buildCommand: npm ci && npm run build
     staticPublishPath: dist
+    # If Render gave the API another hostname (the name was taken), change it here.
     routes:
       - type: rewrite
         source: /api/*
@@ -53,11 +67,7 @@ services:
 
   - type: keyvalue
     name: pcbuilder-redis
+    region: frankfurt
     plan: free
+    maxmemoryPolicy: allkeys-lru
     ipAllowList: []
-
-databases:
-  - name: pcbuilder-db
-    plan: free
-    databaseName: pcbuilder
-    user: pcbuilder

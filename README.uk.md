@@ -278,7 +278,7 @@ cd frontend && npm test && npm run typecheck && npm run lint
 
 ## Деплой
 
-Розгортання на VPS з автоматичним HTTPS (Caddy): **[docs/DEPLOY.md](docs/DEPLOY.md)** (англійською). Для Render є `render.yaml`, але фонові воркери там платні.
+Розгортання на VPS з автоматичним HTTPS (Caddy): **[docs/DEPLOY.md](docs/DEPLOY.md)** (англійською). Безкоштовне демо на Render + Supabase: `render.yaml` і розділ «Free hosting» там само (без фонових воркерів і Telegram-бота).
 
 ## Як я використовував AI
 
