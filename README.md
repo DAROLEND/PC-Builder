@@ -1,45 +1,62 @@
 # PC Builder
 
-Конфігуратор збірок ПК: каталог комплектуючих з **живими цінами й фото з українських магазинів**, збірка з **перевіркою сумісності в реальному часі**, публічні збірки з коментарями, замовлення зі статусами та оплатою, статистика і **AI-порадник**, який підбирає збірку під бюджет через API цього ж застосунку.
+**A PC configurator that actually checks whether the parts fit together.** Pick a CPU, a board, memory, a graphics card, a cooler, a PSU and a case, and every choice is checked against ~30 real compatibility rules: sockets and chipsets, DDR4/DDR5, slot counts, GPU length and cooler height against the case, cooling capacity under load, power supply headroom. Builds can be saved, shared, commented on and ordered; an AI advisor assembles a complete build for a budget through the app's own API; a Telegram bot sends price alerts.
 
-Це не CRUD, у ньому є предметна логіка: сокети, чипсети, DDR4/DDR5, форм-фактори, довжина відеокарти, висота кулера, потужність блока живлення. Правила виражені в коді на різних рівнях (рушій, серіалізатор, модель, обмеження в БД), і нижче пояснено, чому кожне правило стоїть саме там.
+[Українською](README.uk.md) · **Live demo:** _link after deployment_ · API docs at `/api/docs/` · demo account `demo` / `demo12345`
 
-> **Живе демо:** _додай посилання після деплою_ · **API-документація:** `/api/docs/` · демо-акаунт `demo` / `demo12345`
+![Configurator with a live compatibility report](docs/screenshots/configurator.png)
+
+| Build page with the compatibility report | Catalog sorted by popularity |
+|---|---|
+| ![Build](docs/screenshots/build.png) | ![Catalog](docs/screenshots/catalog.png) |
+
+| AI advisor | Mobile |
+|---|---|
+| ![Advisor](docs/screenshots/advisor.png) | <img src="docs/screenshots/mobile.png" width="260" alt="Mobile"> |
 
 ---
 
-## Стек
+## Features
 
-| Шар | Технології |
+- **Configurator with live compatibility checks.** ~30 rules in a pure-Python engine; errors block saving, warnings explain the risk ("the AK400 handles the i7-14700K at its 125 W TDP, but under full load it draws up to 253 W"). The part pickers show only what fits the parts already chosen, filtered in SQL.
+- **Catalog of ~650 parts** with full specifications, typical (median) market price, a daily price history chart (30 days … all time), popularity ranking and market badges: *Top #1*, *−8 % in a month*, *Lowest in a year*.
+- **Builds:** public or private, comments, cloning, orders with a status machine and Stripe Checkout (fake provider by default).
+- **AI advisor:** Claude with tool use calls the app's own endpoints (`search_components`, `check_build`) and must pass the same compatibility engine before its answer is accepted; without an API key a deterministic planner answers.
+- **Price alerts in Telegram:** watch a part or a whole build (±N % either way and/or a target price); the bot links to the account through a one-time code, respects quiet hours and never loses an alert.
+- **Two languages** (Ukrainian / English) with type-checked dictionaries; prices in UAH or USD at the NBU rate.
+
+## Stack
+
+| Layer | Technologies |
 |---|---|
-| Backend | Python 3.13, Django 5.2, Django REST Framework, PostgreSQL 17 (JSONB + GIN), SimpleJWT, drf-spectacular (OpenAPI 3), django-filter |
-| Фонові задачі | Celery + Redis, Celery beat (курс НБУ, синхронізація цін, скасування неоплачених замовлень, e-mail-нотифікації) |
-| Інтеграції | Ціни, наявність і фото з hotline.ua (schema.org, з повагою до robots.txt), API НБУ (курс USD→UAH), Stripe Checkout + вебхуки, Anthropic Claude API (tool use) |
-| Frontend | React 19, TypeScript, Vite, TanStack Query, React Router, `openapi-fetch` з **типами, згенерованими з OpenAPI-схеми**, власна типізована i18n (UA/EN) |
-| Тести | pytest + pytest-django + factory_boy (160 тестів), Vitest + Testing Library (12 тестів) |
-| Інфраструктура | Docker Compose (7 сервісів, одна команда), nginx, GitHub Actions (лінт, міграції, дрейф схеми, тести, збірка образів, smoke-тест), Render Blueprint |
+| Backend | Python 3.13, Django 5.2, Django REST Framework, PostgreSQL 17 (JSONB + GIN, window functions), SimpleJWT, drf-spectacular (OpenAPI 3), django-filter |
+| Background work | Celery + Redis, Celery beat (exchange rate, market refresh, price alerts, order expiry) |
+| Integrations | Anthropic Claude API (tool use), Telegram Bot API (long polling), Stripe Checkout + webhooks, NBU exchange-rate API, market data from product pages (disabled by default, see [Market data](#market-data)) |
+| Frontend | React 19, TypeScript, Vite, TanStack Query, React Router, `openapi-fetch` with **types generated from the OpenAPI schema**, typed i18n |
+| Tests | pytest + pytest-django + factory_boy + responses (275 tests), Vitest + Testing Library (16), Playwright for manual end-to-end checks |
+| Infrastructure | Docker Compose (7 services), nginx, Caddy (HTTPS), GitHub Actions (lint, migrations, schema drift, tests, image build, stack smoke test) |
 
-## Швидкий старт
+## Quick start
 
 ```bash
 docker compose up --build
 ```
 
-Відкрий <http://localhost:8080>. Під час першого запуску міграції та демо-каталог (65 реальних комплектуючих, 5 публічних збірок) застосовуються автоматично.
+Open <http://localhost:8080>. The first start applies migrations and loads the demo catalog (65 parts with hand-checked specs, 5 public builds, the `demo` account).
 
-| Що | Де |
+| What | Where |
 |---|---|
-| Застосунок | http://localhost:8080 |
+| App | http://localhost:8080 |
 | Swagger UI | http://localhost:8080/api/docs/ |
 | Django admin | http://localhost:8080/admin/ (`docker compose exec backend python manage.py createsuperuser`) |
 
-Без жодних ключів працює все, крім двох необов'язкових речей (див. `.env.example`): з `ANTHROPIC_API_KEY` порадник використовує Claude, без нього працює детермінований планувальник; з `PAYMENT_PROVIDER=stripe` оплата йде через Stripe Checkout, без нього використовується фейковий провайдер.
+Everything works without keys. Optional extras in [`.env.example`](.env.example): `ANTHROPIC_API_KEY` (Claude instead of the planner), `TELEGRAM_BOT_TOKEN` (price alerts), `PAYMENT_PROVIDER=stripe` with test keys.
 
 <details>
-<summary>Запуск без Docker</summary>
+<summary>Without Docker</summary>
 
 ```bash
-# Backend (потрібні PostgreSQL і, для фонових задач, Redis)
+# Backend (PostgreSQL required; Redis for background tasks)
 cd backend
 python -m venv .venv && .venv/Scripts/activate      # Linux/macOS: source .venv/bin/activate
 pip install -r requirements-dev.txt
@@ -47,237 +64,114 @@ export DATABASE_URL=postgres://user:pass@localhost:5432/pcbuilder DJANGO_DEBUG=1
 python manage.py migrate && python manage.py seed_catalog
 python manage.py runserver
 
-# Frontend (проксує /api на :8000)
+# Frontend (proxies /api and /media to :8000)
 cd frontend
 npm install
 npm run dev          # http://localhost:5173
 ```
 </details>
 
+Deployment to a VPS with automatic HTTPS: **[docs/DEPLOY.md](docs/DEPLOY.md)**.
+
 ---
 
-## Архітектура
+## Architecture
 
 ```mermaid
 flowchart LR
-    B[Browser<br/>React + TanStack Query] -->|/api, JWT| N[nginx]
-    N --> D[Django + DRF<br/>gunicorn]
+    B[Browser<br/>React + TanStack Query] -->|HTTPS| C[Caddy]
+    C --> N[nginx<br/>SPA, /media]
+    N -->|/api, JWT| D[Django + DRF<br/>gunicorn]
     D --> P[(PostgreSQL<br/>JSONB + GIN)]
     D -->|on_commit| R[(Redis)]
     R --> W[Celery worker]
     BT[Celery beat] --> R
     W --> P
-    W -->|курс| NBU[API НБУ]
+    W -->|rate| NBU[NBU API]
     D -->|Checkout| S[Stripe]
     S -->|webhook| D
-    D -->|tool use| C[Claude API]
+    D -->|tool use| CL[Claude API]
+    TG[Telegram bot<br/>long polling] --> P
+    W -->|alerts| TGA[Telegram API]
 ```
 
 ```
 backend/
-  apps/catalog/    категорії, виробники, компоненти (specs у JSONB), історія цін, курс валют,
-                   схеми специфікацій, фільтр «сумісне з вибраним», інтеграції, Celery-задачі
-  apps/builds/     Build → BuildComponent (through) → Component, коментарі, permissions,
-                   compatibility.py — рушій сумісності (чистий Python, без Django)
-  apps/orders/     замовлення зі знімком цін, машина станів, платіжні провайдери, вебхук Stripe
-  apps/stats/      агрегації та віконні функції
-  apps/advisor/    AI-порадник: цикл з Claude + детермінований планувальник
-  apps/accounts/   реєстрація, JWT, профіль
+  apps/catalog/    categories, manufacturers, components (specs in JSONB), price history,
+                   spec schemas, "compatible with the selection" filter, market data,
+                   popularity and price signals
+  apps/builds/     Build → BuildComponent (through) → Component, comments, permissions,
+                   compatibility.py: the rule engine (plain Python, no Django)
+  apps/orders/     orders with a price snapshot, state machine, payment providers, Stripe webhook
+  apps/stats/      aggregations and window functions
+  apps/advisor/    AI advisor: Claude tool-use loop + deterministic planner
+  apps/alerts/     price watches, Telegram linking, the bot, the alert check
+  apps/accounts/   sign-up, JWT
 frontend/src/
-  api/schema.d.ts  згенеровано з backend/schema.yml, руками не редагується
-  api/hooks.ts     усі запити через TanStack Query
-  pages/           конфігуратор, каталог, збірки, замовлення, порадник, статистика
+  api/schema.d.ts  generated from backend/schema.yml, never edited by hand
+  api/hooks.ts     every request goes through TanStack Query
+  pages/           configurator, catalog, part page, builds, orders, advisor, stats, profile
 ```
 
-### Модель даних
+`Component.specs` is JSONB because every category has different characteristics (a CPU has a socket and TDP, a GPU has length and VRAM); a wide table with dozens of nullable columns would be worse. The price of that flexibility is that the database no longer guarantees the shape, so `catalog/specs.py` does: a schema per category with types, enums, minimums and in-component rules (threads ≥ cores; an air cooler needs a height, a liquid one a radiator size).
 
-```mermaid
-erDiagram
-    User ||--o{ Build : owns
-    Build ||--o{ BuildComponent : contains
-    Component ||--o{ BuildComponent : "used in"
-    Category ||--o{ Component : groups
-    Manufacturer ||--o{ Component : makes
-    Build ||--o{ Comment : has
-    User ||--o{ Comment : writes
-    Component ||--o{ PriceHistory : "price log"
-    User ||--o{ Order : places
-    Order ||--o{ OrderItem : "snapshot of"
-    Build |o--o{ Order : "ordered from"
-```
+## Compatibility rules
 
-`Component.specs` — це JSONB, бо в кожної категорії свої характеристики: у CPU є сокет і TDP, у GPU довжина і VRAM. Широка таблиця з десятками nullable-колонок гірша. Ціна цієї гнучкості в тому, що база більше не гарантує форму даних, тож форму перевіряє `catalog/specs.py`: схема для кожної категорії з типами, enum-ами, мінімумами та правилами всередині одного компонента (потоків не менше, ніж ядер; повітряному кулеру потрібна висота, рідинному розмір радіатора).
+All rules live in [`backend/apps/builds/compatibility.py`](backend/apps/builds/compatibility.py). The engine takes plain `Part` objects and returns a `Report` with an issue **code and parameters**, so the frontend renders the message in either language. It knows nothing about Django, so every rule is tested without a database.
 
----
+| Rule | Level |
+|---|---|
+| CPU socket = board socket; the board's chipset supports this CPU | error |
+| Memory type matches the board and the CPU; no DDR4/DDR5 mix; modules ≤ slots; capacity ≤ board maximum | error |
+| Board form factor and PSU form factor fit the case | error |
+| GPU length ≤ case limit (tight fit < 10 mm is a warning; unknown length is a warning) | error / warning |
+| Cooler: supports the socket, fits the case (height / radiator), **can dissipate the CPU's power under load** (Intel's max turbo power, AMD's PPT = 1.35 × TDP), CPU sold without a cooler | error / warning |
+| PSU wattage ≥ estimated draw, 30 % headroom, ≥ the GPU vendor's recommendation | error / warning |
+| M.2 drives ≤ M.2 slots, SATA drives ≤ ports; no GPU needs a CPU with integrated graphics | error |
 
-## Правила сумісності
+**Where each check lives, and why:** database constraints (price ≥ 0, quantity range, uniqueness) are the last line of defence; `Model.clean()` validates specs for the admin and seeding too; the serializer's `validate()` runs the engine because the rules are cross-field; the order service checks "complete, compatible and still on sale", a rule of one operation, not a property of the data; one `TRANSITIONS` table drives the order state machine.
 
-Усі правила зібрано в `backend/apps/builds/compatibility.py`. Рушій приймає прості об'єкти `Part` і повертає `Report`. Він нічого не знає про Django, тому кожне правило тестується без бази даних (`tests/test_compatibility_engine.py`, 28 тестів, <0.2 с).
+## Engineering notes worth asking about
 
-| Правило | Рівень | Код |
-|---|---|---|
-| Сокет CPU = сокет материнської плати | помилка | `CPU_SOCKET_MISMATCH` |
-| Чипсет плати підтримує цей CPU (напр. 9800X3D не підтримується на A620) | помилка | `CHIPSET_UNSUPPORTED` |
-| Тип пам'яті збігається з платою та підтримується CPU; DDR4 і DDR5 не змішуються | помилка | `MEMORY_TYPE_MISMATCH`, `CPU_MEMORY_UNSUPPORTED`, `MIXED_MEMORY_TYPES` |
-| Кількість модулів ≤ слотів, обсяг ≤ максимуму плати | помилка | `NOT_ENOUGH_MEMORY_SLOTS`, `MEMORY_OVER_MAX` |
-| Форм-фактор плати підтримується корпусом | помилка | `CASE_FORM_FACTOR` |
-| Довжина відеокарти ≤ ліміту корпусу; запас < 10 мм дає попередження | помилка / попередження | `GPU_TOO_LONG`, `GPU_TIGHT_FIT` |
-| Висота кулера ≤ ліміту корпусу; радіатор ≤ підтримуваного; кулер підтримує сокет | помилка | `COOLER_TOO_TALL`, `RADIATOR_TOO_LARGE`, `COOLER_SOCKET` |
-| TDP-рейтинг кулера ≥ TDP процесора | попередження | `COOLER_UNDERRATED` |
-| Форм-фактор БЖ (ATX/SFX) підтримується корпусом | помилка | `PSU_FORM_FACTOR` |
-| Потужність БЖ ≥ оцінки споживання; запас 30 %; мінімум від виробника GPU | помилка / попередження | `PSU_INSUFFICIENT`, `PSU_LOW_HEADROOM`, `PSU_BELOW_GPU_RECOMMENDATION` |
-| M.2-накопичувачів ≤ M.2-слотів, SATA ≤ портів | помилка | `NOT_ENOUGH_M2_SLOTS`, `NOT_ENOUGH_SATA_PORTS` |
-| Без відеокарти CPU повинен мати вбудовану графіку | помилка | `NO_VIDEO_OUTPUT` |
-| Максимум 1 CPU / плата / БЖ / корпус / кулер, ≤ 2 GPU | помилка | `TOO_MANY_PARTS` |
+- **JSONB + GIN (`jsonb_path_ops`).** Filters are built as `specs @> '{"socket": "AM5"}'`, which the GIN index serves; `specs__socket="AM5"` would compile to `specs -> 'socket' = …`, which it does not. A test asserts the SQL uses `@>`.
+- **"Only compatible" filtering in SQL, not Python** (`catalog/compat_query.py`): hard rules become `WHERE` clauses, so pagination and ordering stay in the database. It is a pre-filter that never hides a valid part; the engine stays the single source of truth.
+- **`EXISTS` instead of a join filter.** Filtering builds by a component and then summing prices reused the join and summed one row ($260 instead of $735). Regression test included.
+- **Subquery instead of `Count("comments")`**, because two aggregates over two joins multiply each other's rows.
+- **Constant query counts** (N+1) for lists and details, enforced by tests.
+- **Window functions:** top-N per category (`RANK() OVER (PARTITION BY category)`), popularity rank (`ROW_NUMBER`), price ladder (`PERCENT_RANK`).
+- **Money is always a decimal string**, never a float, in Python and TypeScript.
+- **Concurrency:** `select_for_update()` plus idempotency for Stripe webhooks; the "expire order ↔ payment webhook" race is guarded and tested.
+- **Frontend ↔ backend contract:** CI regenerates the OpenAPI schema and the TypeScript types and fails if either differs from the committed files.
+- **Typical price, not the minimum:** the headline price is the median of new-condition shop offers; the cheapest offer alone is often a shop without stock.
+- **Market signals that don't lie:** price drops compare weekly medians and are shown only for parts sold by ≥ 5 shops; with one or two sellers the "average" jumps with every listing (a CPU "fell 75 %" because an overpriced single shop was joined by normal ones).
+- **Reading a Nuxt page state without executing it:** a small strict parser for exactly the syntax the serializer emits; anything else is rejected, so a changed page can make us learn less, never run foreign code.
 
-Помилка означає, що збірка фізично не працюватиме, і таку збірку зберегти не можна. Попередження означає, що вона працює, але так робити не варто. Відсутні деталі повідомляються окремо, тому незавершену збірку можна зберегти як чернетку.
+## Market data
 
-### Де живе яка валідація і чому
+> **Collection from third-party sites is off by default** (`MARKET_FETCH_ENABLED=0`). The integration was built against hotline.ua, whose [user agreement](https://hotline.ua/ua/page/user_agreement/) forbids automated collection without the administration's written permission (p. 6.4) and copying of site materials (p. 2.4); robots.txt is not a permission. The code stays as an example of working with market data and runs only with such permission or against a source whose terms allow it. The public demo runs on the curated catalog in the repository.
 
-| Рівень | Що перевіряє | Чому саме тут |
-|---|---|---|
-| **Constraint у БД** | ціна ≥ 0, `quantity` 1..8, унікальність (збірка, компонент), унікальна назва збірки в межах власника, у оплаченого замовлення є `paid_at` | Остання лінія оборони: баг у серіалізаторі, `bulk_create` чи ручний SQL не зіпсують дані. |
-| **`Model.clean()`** | схема `specs` для категорії | Спрацьовує і в адмінці, і в `seed_catalog` (`full_clean()`), а не лише в API. |
-| **Поле серіалізатора** | компонент існує й активний, кількість у межах | Звичайна валідація вхідних даних. |
-| **`validate_items`** | немає дублікатів у запиті | Правило стосується списку як цілого, але ще не домену. |
-| **`validate()` серіалізатора** | повна перевірка сумісності рушієм | Правила крос-польові: вони залежать від *усіх* компонентів одразу, і жоден валідатор окремого поля їх не бачить. |
-| **Сервіс замовлень** | збірка повна й сумісна, компоненти ще в продажу | Бізнес-правило конкретної операції «оформити замовлення», а не властивість даних. |
-| **Машина станів `Order`** | дозволені переходи статусів | Одна таблиця `TRANSITIONS` на всі місця, що змінюють статус. |
+How it works when enabled: prices, offers and photos come from schema.org `Product` markup and the page state, specs are mapped per category and validated (unknown values are dropped: a part stays "catalog only" rather than getting a guessed spec), photos are mirrored once as WebP (360 / 1000 px), requests respect robots.txt with per-host throttling and an honest User-Agent, and a title check marks a listing as `mismatch` if its URL starts showing a different product. Parts sold by fewer than 3 shops are hidden from browsing and reappear when supply returns.
 
-Ліміти на кількість деталей певного виду (1 CPU, 2 GPU) реалізовано в рушії, а не в БД: вони залежать від категорії компонента, тобто від іншої таблиці, і CHECK-обмеження такого не виразить.
+## Telegram price alerts
 
----
+"Watch price" on a part or build page stores a condition (±N % either way and/or a target price). After every market refresh `check_watches()` compares the price with a baseline that moves **only after a successful delivery**, so an alert held back by quiet hours (22:00–08:00 Kyiv) or a Telegram outage is sent later instead of being lost. Linking needs no password in the bot: the site issues a one-time code, the user opens `t.me/<bot>?start=<code>`. Commands `/list`, `/stop`, `/on`; a user who blocks the bot is switched off automatically.
 
-## Технічні рішення, про які варто розпитати
+## AI advisor
 
-- **JSONB + GIN (`jsonb_path_ops`).** Фільтри `?socket=AM5` і «сумісне з вибраним» будуються як `specs @> '{"socket": "AM5"}'`, і такий запит обслуговує GIN-індекс. Запит `specs__socket="AM5"` скомпілювався б у `specs -> 'socket' = ...`, і GIN-індекс його не обслуговує. Тест перевіряє, що в SQL справді `@>`.
-- **Фільтр «лише сумісні» у SQL, а не в Python** (`catalog/compat_query.py`). Жорсткі правила переведено в `WHERE`, тому пагінація й сортування лишаються в базі. Фільтр лише попередній: він відсікає помилки, але пропускає попередження. Єдиним джерелом правди лишається рушій.
-- **`EXISTS` замість join-фільтра.** `Build.objects.filter(build_components__component=gpu).with_total_price()` повертає $260 замість $735: Django перевикористовує join, і `SUM` рахує лише рядок з GPU. Це перевірено вручну, тому фільтр по компоненту зроблено через `Exists(...)`. Регресійний тест: `test_total_price_not_affected_by_component_filter`.
-- **Subquery замість `Count("comments")`.** Два агрегати по двох різних join-ах перемножують рядки один одного, і сума ціни виходить помноженою на кількість коментарів.
-- **N+1.** `with_parts()` робить `Prefetch` з `select_related` на категорії та виробників. Тести фіксують, що список і деталі виконуються за сталу кількість запитів, незалежно від кількості збірок чи деталей.
-- **Віконні функції.** Топ-3 компонентів у кожній категорії через `RANK() OVER (PARTITION BY category)` з фільтром по результату вікна (Django 4.2+), драбина цін через `DENSE_RANK`/`PERCENT_RANK`.
-- **Знімок цін у замовленні.** `OrderItem` зберігає назву й ціну на момент оформлення, тож пізніша зміна ціни чи видалення збірки замовлення не змінює.
-- **Конкурентні зміни статусу.** `select_for_update()` плюс ідемпотентність (вебхуки Stripe приходять повторно). Окремо захищено гонку «задача скасування ↔ вебхук оплати» параметром `expected=`, і на неї є тест.
-- **Нотифікації не ламають операції.** Задачі ставляться в чергу в `transaction.on_commit` через `enqueue_best_effort`: якщо Redis недоступний, оплата все одно повертає 200, а збій записується в лог.
-- **Гроші — завжди decimal-рядки.** Ні в Python, ні в TypeScript арифметики на float немає. На це є контрактний тест.
-- **Контракт фронт ↔ бек.** Типи фронтенду генеруються з OpenAPI-схеми. CI перевіряє, що `schema.yml` і `schema.d.ts` закомічені й актуальні, тому зміна API без оновлення фронту ламає збірку, а не продакшн.
+`POST /api/advisor/ {budget, currency, use_case, preferences}` returns a complete, compatible build within budget (budget in UAH or USD).
 
----
+- **With an Anthropic key:** a Claude tool-use loop where the tools are the app's own API. The model cannot just name a build: `submit_build` is checked server-side by the same engine, and an incompatible, incomplete or over-budget answer goes back to the model as an error to fix. Refusals, API errors and a site-wide daily call cap fall back to the planner.
+- **Without a key:** a deterministic planner splits the budget by use case, upgrades and downgrades, and reports an unreachable budget honestly. Parametrized tests cover 4 use cases × 5 budgets.
 
-## Живі ціни й фото
-
-> **Збір даних вимкнено за замовчуванням** (`MARKET_FETCH_ENABLED=0`). [Угода користувача hotline.ua](https://hotline.ua/ua/page/user_agreement/) забороняє парсинг без письмового дозволу адміністрації (п. 6.4) і копіювання матеріалів сайту без письмової згоди (п. 2.4); robots.txt дозволу не дає. Код інтеграції нижче лишається як приклад роботи з ринковими даними. Вмикати його (`MARKET_FETCH_ENABLED=1`) можна лише з таким дозволом або для джерела, умови якого це дозволяють. Коли перемикач вимкнено, жодна команда, фонова задача чи дія в адмінці не звертається до сторонніх сайтів, а дані, вже збережені в базі, лишаються без змін. Курс НБУ (відкритий державний API) від перемикача не залежить.
-
-Ціни в каталозі не треба міняти руками. У кожної деталі є `MarketListing` — посилання на ту саму модель на hotline.ua (або на сторінку магазину). Celery beat кожні 30 хвилин оновлює лістинги, старші за 20 годин:
-
-- **Звідки дані.** Зі стандартної розмітки schema.org `Product` (JSON-LD, запасний варіант — microdata й OpenGraph), яку сайти публікують для пошуковиків: мінімальна й максимальна ціна по всіх магазинах, кількість пропозицій, наявність, рейтинг, фото. HTML-верстку конкретного сайту ніхто не парсить, тож редизайн магазину нічого не ламає. Приватні API магазинів теж не використовуються.
-- **Чемність.** Кожен хост перевіряється за robots.txt (кешується на добу), між запитами до одного хоста є пауза, бот називається чесним User-Agent'ом і ходить лише на сторінки товарів.
-- **Захист від сміття.** Назва на сторінці звіряється з нашою за «модельними» токенами (`9800x3d`, `b650m`, `rm850x`). Якщо URL почав показувати інший товар, лістинг отримує статус `mismatch`, а ціна не змінюється. Заглушки «немає фото» відкидаються. Ціни в невідомій валюті не конвертуються.
-- **Яка ціна показується.** Типова, тобто **медіана** цін усіх магазинів (нових товарів, без б/в): половина магазинів продає дешевше, половина дорожче. Мінімальна пропозиція «від X» часто належить магазину без товару на складі, тож як «ціна товару» вона вводить в оману. Поруч показується діапазон «від мінімальної до максимальної». Якщо джерело не перелічує окремі пропозиції, береться мінімальна ціна. Перевага в наявності; якщо ніде немає — остання відома ціна.
-- **Історія цін.** Джерело — графік самого hotline: середня ціна, мінімум і максимум за кожен день останнього року й двічі на місяць раніше (для популярних моделей з 2023 року). Графік сторінка hotline бере з їхнього внутрішнього GraphQL (`/svc/frontend-api/graphql`, запит `chart(productPath)`). Це недокументований API, тож він підключений за рішенням власника проєкту й за тими самими правилами, що й решта запитів: robots.txt (шлях `/svc/` не заборонено), пауза між запитами, чесний User-Agent. Кожне оновлення лістинга дотягує нові дні (`apps/catalog/price_history.py`), а `python manage.py sync_price_history` заповнює історію для всіх товарів одразу. Якщо API зміниться або впаде, нічого не ламається: ми самі пишемо одну точку на день (медіана, мінімум, максимум).
-  Лінія на графіку — це середня ціна за методикою hotline. Ціна в заголовку — наша медіана за поточними пропозиціями. Щоб лінія не стрибала між двома методиками, наші власні точки після останнього дня графіка hotline видаляються. На сторінці товару є перемикач «30 днів / 3 місяці / пів року / рік / увесь час» (`GET /api/components/{slug}/price-history/?days=90`), смуга «від найдешевшої до найдорожчої пропозиції», підказка при наведенні, а також мінімум, середнє, максимум і зміна за період.
-- **Додати товар.** Персонал вставляє URL (`POST /api/components/{slug}/listings/` або в адмінці), і сторінка одразу завантажується: у відповіді вже є назва, ціна й фото.
-
-- **Фото.** Картинки не підвантажуються з CDN агрегатора напряму: там оригінали до 700 КБ, а частину клієнтів CDN відхиляє з 503. Тому при оновленні лістинга воркер один раз завантажує фото й зберігає дві WebP-копії через Pillow: мініатюру 360 px (~12 КБ) і велике фото 1000 px (`ProductImage`). Далі вони віддаються з `/media/`.
+## Tests and quality
 
 ```bash
-python manage.py refresh_market --all     # оновити все зараз (синхронно)
-python manage.py refresh_market --async   # поставити в чергу Celery: курс НБУ → ринок
-```
-
-### Популярність і ринкові сигнали
-
-Каталог і пікер конфігуратора за замовчуванням сортуються **за популярністю**, як на hotline: спершу те, що люди справді купують, а не найдешевший ноунейм. Індекс інтересу приходить разом з історією цін (ряд `popularity` у графіку hotline) і згладжується за 7 днів. Після пакетного оновлення `market_stats.update_market_stats()` за секунду-дві рахує для всього каталогу:
-
-- **місце в категорії** — `ROW_NUMBER() OVER (PARTITION BY category ORDER BY popularity DESC)`. Три перші мають бейдж «Хіт №N», а на сторінці товару видно «№N за популярністю в категорії»;
-- **зміну ціни за 30 днів** — медіана останнього тижня проти медіани тижня місяць тому. Звідси бейдж «−N % за місяць» і сортування «Найбільше подешевшали»;
-- **«Мінімум за рік»** — поточна ціна в межах 1 % від найнижчої за 12 місяців, якщо історії щонайменше 90 днів.
-
-**Товари, які продають менше 3 магазинів** (`MARKET_MIN_SHOPS`), не показуються в каталозі, виборі деталей і AI-порадникові: ціна одного-двох продавців не є ринковою. Вони не видаляються: сторінка лишається доступною за посиланням з пояснювальною позначкою, у старих збірках вони на місці, а коли магазинів стане більше, товар сам повернеться в каталог. Імпорт такі товари пропускає.
-
-Значення зберігаються в `Component`, тож сортування — звичайний запит по індексу. Товари без даних ідуть у кінець (`NullsLastOrderingFilter`: PostgreSQL за спаданням ставить NULL першими).
-
-Середня ціна hotline «шумить», коли товар продає один-два магазини: Ryzen 5 3600 «подешевшав на 75 %», бо місяць тому його продавав один магазин за $442, а тепер з'явились звичайні пропозиції. Тому сигнали рахуються лише для товарів, які зараз продають щонайменше 5 магазинів, за тижневими медіанами, а зміни понад ±40 % вважаються артефактом і не показуються.
-
-### Імпорт каталогу: чому не «всі відеокарти світу»
-
-Рушію сумісності потрібні **точні** характеристики: сокет, чипсет, довжина відеокарти, TDP, габарити корпусу. У schema.org-розмітці агрегатора є лише назва, бренд, ціна й фото. Повна таблиця характеристик і всі пропозиції магазинів лежать у стані сторінки: `window.__NUXT__`, серіалізований Nuxt 2 як функція, що повертає об'єкт.
-
-**Стан сторінки читається без виконання JavaScript.** `apps/catalog/nuxt_state.py` — маленький строгий парсер саме того підмножини синтаксису, яку видає серіалізатор: літерали, об'єкти, масиви, посилання на параметри, `void 0`, `Array(n)`, `Object.create(null)` і присвоєння `x.key=…` перед `return`. Будь-що інше (виклик функції, невідомий ідентифікатор, `Array(1e9)`, надглибока вкладеність) — `NuxtStateError`, і товар просто лишається без додаткових даних. Далі `source_specs.py` перекладає рядки таблиці («Тип роз'єму: Socket 1700», «DIMM: 4xDDR5 …, до 128 ГБ», «Максимальна довжина відеокарти: до 410 мм»…) у наші ключі по кожній категорії. Значення, які не розпізналися або не пройшли `validate_specs`, відкидаються: краще «лише каталог», ніж вигадана характеристика. Дві речі виводяться, а не читаються, і це задокументовано в коді: список чипсетів для сокета процесора і формат БЖ ATX для корпусу під ATX-плати.
-
-Каталог має два рівні:
-
-- **Деталі для конфігуратора** (`specs_complete = true`): усі потрібні поля відомі, і деталь бере участь у збірках, фільтрі `compatible_with` і AI-порадникові.
-- **Лише каталог** (`specs_complete = false`): ціна й фото живі, але частини характеристик немає. Деталь видно в каталозі з позначкою, на її сторінці показано, чого бракує, а в збірку її додати не можна (серіалізатор відхиляє). Щойно персонал заповнить поля в адмінці, прапорець перераховується в `save()` і деталь стає доступною.
-
-`import_hotline` обходить сторінки категорій (ті самі правила: robots.txt, пауза, чесний User-Agent) і створює нові товари. Товари без жодного фото навіть на hotline не імпортуються. Партномер із дужок у назві («Ryzen 5 5500 (100-100000457BOX)») стає артикулом, тож box- і tray-версії одного процесора зливаються в один товар. Характеристики беруться з таблиці hotline, а там, де її немає, — з назви, якщо це однозначно: пам'ять (усе є в назві: «32 GB (2x16GB) DDR5 6000 MHz»; SO-DIMM відкидається), відеокарти (чип і пам'ять з назви, енергоспоживання й рекомендований БЖ з довідкової таблиці чипів; якщо довжина невідома, рушій попереджає `GPU_LENGTH_UNKNOWN` замість перевірки корпусу), SSD (обсяг з назви; інтерфейс з назви або за серією, яка існує лише в одному форм-факторі: 990 PRO, NV3, SN850X → M.2 NVMe, A400, MX500 → SATA). Кожне оновлення лістинга доповнює характеристики, яких бракує (наявні не перезаписуються ніколи), тож деталі «лише каталог» стають доступними для збірки, щойно джерело публікує все потрібне. Також відкидається те, що агрегатор тримає в тих самих категоріях, але в збірку не ставиться: пам'ять SO-DIMM, корпусні вентилятори, зовнішні USB-диски.
-
-Після імпорту трьох сторінок відеокарт, пам'яті й SSD та однієї сторінки інших категорій каталог має ~660 товарів, з них ~350 придатні для конфігуратора (було 65).
-
-```bash
-python manage.py import_hotline --category gpu --pages 2   # 48 товарів на сторінку
-python manage.py import_hotline --async                    # усі категорії, у фоні через Celery
-```
-
-У Docker це робиться автоматично після першого старту (`IMPORT_CATALOG_PAGES`, за замовчуванням 1 сторінка на категорію).
-
-## Сповіщення про ціни в Telegram
-
-Кнопка **«Стежити за ціною»** на сторінці товару чи збірки додає його в обране з умовою: ціна змінилась на ±N % (в обидва боки) і/або опустилась до бажаної. Сповіщення надсилає бот у Telegram; у профілі видно обране, свої збірки і стан підключення (`apps/alerts`).
-
-- **Прив'язка без паролів у боті.** Сайт видає одноразовий код (`POST /api/telegram/link/`, діє 30 хвилин). Кнопка відкриває `t.me/<бот>?start=<код>`, користувач тисне «Start», і бот прив'язує цей чат до акаунта, який попросив код. Повторно код не спрацює; один чат належить одному акаунту.
-- **Коли пишемо.** Після кожного оновлення ринку (і щогодини) `check_watches()` порівнює ціну з «базовою», тобто ціною на момент додавання або останнього сповіщення. Базова зсувається лише після успішної доставки, тож повідомлення, відкладене «тишею вночі» (22:00–08:00 за Києвом, вимикається в профілі) чи збоєм Telegram, надійде пізніше, а не загубиться. Перетин бажаної ціни — окрема подія, навіть якщо зміна менша за поріг.
-- **Повідомлення** українською або англійською, у гривнях чи доларах, з кнопками «Відкрити на сайті» і «Більше не стежити». Команди: `/list`, `/stop`, `/on`. Якщо користувач заблокував бота, сповіщення для нього вимикаються.
-- **Запуск.** Токен від @BotFather кладеться в `backend/.env` (`TELEGRAM_BOT_TOKEN=...`; файл у `.gitignore`, змінні середовища мають пріоритет). Бот працює через long polling, публічна адреса не потрібна: `python manage.py run_telegram_bot` локально або сервіс `bot` у Docker Compose. Без токена функція просто вимкнена.
-
-## Дві мови
-
-Інтерфейс перекладено українською та англійською: перемикач у хедері, вибір запам'ятовується, за замовчуванням береться мова браузера.
-
-- **Словники** (`frontend/src/i18n/`) — звичайні TypeScript-об'єкти. `uk satisfies Record<MessageKey, string>`, тож пропущений ключ дає помилку компіляції, а не порожній рядок у UI. Множина обробляється через `Intl.PluralRules` (1 деталь · 3 деталі · 5 деталей).
-- **Повідомлення рушія сумісності** бекенд віддає як `code` + `params` (назви деталей, сокети, міліметри), а фронт складає текст потрібною мовою. Рушій лишається незалежним від мови. Для невідомого коду показується англійський `message` із сервера.
-- **Стандартні повідомлення Django/DRF** («Це поле не може бути порожнім») перекладає `LocaleMiddleware` за заголовком `Accept-Language`, який фронт додає до кожного запиту.
-- **Гроші.** Українська версія показує гривні першими (за курсом НБУ), англійська — долари. Суми, які вводить користувач (фільтр «макс. ціна», бюджет AI-порадника), теж у гривнях: каталог рахує в USD, конвертація відбувається на межі (`useMoney().toUsd`, `currency: "UAH"` в API порадника).
-
-## AI-порадник
-
-`POST /api/advisor/ {budget, use_case, preferences}` повертає повну сумісну збірку в межах бюджету.
-
-- **З ключем Anthropic.** Працює цикл tool use з Claude (`apps/advisor/llm.py`), де інструменти відповідають власному API застосунку:
-  `search_components` = `GET /api/components/?compatible_with=…`, `check_build` = `POST /api/compatibility/check/`, `submit_build` дає фінальну відповідь.
-  Модель не може просто назвати збірку: `submit_build` перевіряється на сервері тим самим рушієм, і збірку з помилками, неповну чи понад бюджет повертають моделі як `is_error` з поясненням. Модель виправляє й надсилає знову. При відмові (refusal), помилці API чи вичерпанні раундів відповідає детермінований планувальник.
-- **Без ключа.** Працює планувальник (`apps/advisor/planner.py`): ділить бюджет між слотами за сценарієм, у продуктивні слоти (CPU/GPU/RAM) бере найкраще, у решту — найдешевше без проблем, лишає резерв на ще не вибрані слоти, а потім робить апгрейд, даунгрейд і, якщо треба, повне перепланування. Параметризовані тести перевіряють, що для 4 сценаріїв × 5 бюджетів результат повний, сумісний і не перевищує бюджет, а недосяжний бюджет чесно позначається в нотатках.
-
-## API (коротко)
-
-Повна інтерактивна документація: `/api/docs/` (Swagger) або `/api/redoc/`.
-
-```
-POST /api/auth/register/ · /api/auth/token/ · /api/auth/token/refresh/ · GET /api/auth/me/
-GET  /api/components/?category=gpu&max_price=500&socket=AM5&compatible_with=12,40&search=…
-GET  /api/components/{slug}/price-history/
-POST /api/compatibility/check/                 {items:[{component, quantity}]}
-CRUD /api/builds/  ?mine=true&component=…&ordering=-total_price
-GET  /api/builds/{id}/compatibility/ · POST /api/builds/{id}/clone/ · GET|POST /api/builds/{id}/comments/
-POST /api/orders/ · POST /api/orders/{id}/pay/ · /cancel/ · /advance/ (staff)
-POST /api/payments/stripe/webhook/
-GET  /api/stats/categories/ · popular-components/ · top-per-category/ · price-position/ · cheapest-build/?gpu=
-POST /api/advisor/
-```
-
-## Тести та якість
-
-```bash
-cd backend && pytest --cov        # 160 тестів, потрібен PostgreSQL
+cd backend && pytest --cov        # 275 tests, needs PostgreSQL
 cd frontend && npm test && npm run typecheck && npm run lint
 ```
 
-Що покрито: кожне правило сумісності окремо; permissions (чужа приватна збірка дає 404, а не 403, щоб не розкривати її існування); обмеження БД; кількість SQL-запитів; агрегації на даних, де наївний запит дав би неправильну відповідь; машина станів і гонки; вебхук Stripe; інтеграції через `responses` (без мережі); AI-цикл через скриптований фейковий клієнт, який перевіряє, що відхилена збірка повертається моделі як помилка.
+Covered: every compatibility rule; permissions (someone else's private build is a 404, not a 403); database constraints; SQL query counts; aggregations on data where a naive query is wrong; the order state machine and races; the Stripe webhook; external APIs through `responses` (no network); the Claude loop through a scripted fake client; the Telegram bot and alert check; the page-state parser against malicious input.
 
-## Деплой
+## How I used AI
 
-`render.yaml` — Blueprint для Render (API у Docker, статичний фронт з rewrite `/api/*`, Postgres, Key Value). Фонові воркери на Render платні. Без них сайт працює, лише ціни та курс не оновлюються за розкладом.
-
-## Як я використовував AI
-
-Див. **[docs/AI_USAGE.md](docs/AI_USAGE.md)**: що було делеговано Claude Code, де він помилявся, як ці помилки знайдено (тести, згенеровані типи, запуск без Redis, скриншоти) і що змінено.
+This project was built with Claude Code. **[docs/AI_USAGE.md](docs/AI_USAGE.md)** documents what was delegated, where the AI was wrong, how those mistakes were caught (tests, generated types, screenshots, running against real data) and what changed as a result.
