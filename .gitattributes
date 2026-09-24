@@ -1,0 +1,5 @@
+* text=auto
+*.sh text eol=lf
+nginx.conf text eol=lf
+frontend/src/api/schema.d.ts linguist-generated=true
+backend/schema.yml linguist-generated=true

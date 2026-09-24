@@ -1,0 +1,92 @@
+# One command: `docker compose up --build`, then open http://localhost:8080
+name: pc-builder
+
+x-backend: &backend
+  build: ./backend
+  env_file:
+    - path: .env
+      required: false
+    # Local secrets such as TELEGRAM_BOT_TOKEN (never committed).
+    - path: backend/.env
+      required: false
+  # Mirrored product photos: written by the worker, served by the web container.
+  volumes:
+    - media:/app/media
+  environment: &backend-env
+    DATABASE_URL: postgres://pcbuilder:pcbuilder@db:5432/pcbuilder
+    REDIS_URL: redis://redis:6379/0
+    DJANGO_DEBUG: ${DJANGO_DEBUG:-0}
+    DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY:-local-docker-secret-change-me}
+    DJANGO_ALLOWED_HOSTS: localhost,127.0.0.1,backend
+    DJANGO_CSRF_TRUSTED_ORIGINS: http://localhost:8080
+    FRONTEND_URL: http://localhost:8080
+    SECURE_COOKIES: "0"
+  depends_on:
+    db:
+      condition: service_healthy
+    redis:
+      condition: service_healthy
+
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: pcbuilder
+      POSTGRES_USER: pcbuilder
+      POSTGRES_PASSWORD: pcbuilder
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U pcbuilder -d pcbuilder"]
+      interval: 3s
+      retries: 20
+
+  redis:
+    image: redis:7-alpine
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 3s
+      retries: 20
+
+  backend:
+    <<: *backend
+    environment:
+      <<: *backend-env
+      RUN_MIGRATIONS: "1"
+      SEED_DEMO_DATA: "1"
+      # Listing pages per category imported from hotline.ua in the background
+      # (48 products per page); 0 keeps only the curated demo catalog.
+      IMPORT_CATALOG_PAGES: ${IMPORT_CATALOG_PAGES:-1}
+    ports:
+      - "8000:8000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health/')"]
+      interval: 5s
+      retries: 30
+
+  worker:
+    <<: *backend
+    command: ["celery", "-A", "config", "worker", "--loglevel=info", "--concurrency=2"]
+
+  beat:
+    <<: *backend
+    command: ["celery", "-A", "config", "beat", "--loglevel=info", "--schedule=/tmp/celerybeat-schedule"]
+
+  # Telegram price alerts: links chats to accounts and answers commands. Long
+  # polling, so it needs no public URL. Does nothing useful without a token.
+  bot:
+    <<: *backend
+    command: ["python", "manage.py", "run_telegram_bot"]
+    restart: unless-stopped
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "8080:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+
+volumes:
+  pgdata:
+  media:

@@ -1,0 +1,7 @@
+-r requirements.txt
+pytest>=8.4
+pytest-django>=4.11
+pytest-cov>=6.2
+factory-boy>=3.3
+responses>=0.25
+ruff>=0.12

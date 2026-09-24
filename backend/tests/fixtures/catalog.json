@@ -1,0 +1,1263 @@
+{
+  "_note": "Demo catalog. Specs follow manufacturer data sheets. Prices are initial approximations in USD; live prices and photos come from listing_url (hotline.ua) via manage.py refresh_market.",
+  "categories": [
+    {
+      "kind": "cpu",
+      "name": "Processors",
+      "slug": "cpu",
+      "position": 1
+    },
+    {
+      "kind": "motherboard",
+      "name": "Motherboards",
+      "slug": "motherboards",
+      "position": 2
+    },
+    {
+      "kind": "ram",
+      "name": "Memory",
+      "slug": "memory",
+      "position": 3
+    },
+    {
+      "kind": "gpu",
+      "name": "Graphics cards",
+      "slug": "graphics-cards",
+      "position": 4
+    },
+    {
+      "kind": "storage",
+      "name": "Storage",
+      "slug": "storage",
+      "position": 5
+    },
+    {
+      "kind": "cooler",
+      "name": "CPU coolers",
+      "slug": "cpu-coolers",
+      "position": 6
+    },
+    {
+      "kind": "psu",
+      "name": "Power supplies",
+      "slug": "power-supplies",
+      "position": 7
+    },
+    {
+      "kind": "case",
+      "name": "Cases",
+      "slug": "cases",
+      "position": 8
+    }
+  ],
+  "components": [
+    {
+      "kind": "cpu",
+      "manufacturer": "AMD",
+      "name": "Ryzen 5 7600",
+      "price": "191.32",
+      "specs": {
+        "socket": "AM5",
+        "cores": 6,
+        "threads": 12,
+        "base_clock_ghz": 3.8,
+        "boost_clock_ghz": 5.1,
+        "tdp_w": 65,
+        "integrated_graphics": true,
+        "supported_chipsets": [
+          "A620",
+          "B650",
+          "B650E",
+          "X670",
+          "X670E",
+          "B850",
+          "X870",
+          "X870E"
+        ],
+        "memory_types": [
+          "DDR5"
+        ]
+      },
+      "listing_url": "https://hotline.ua/ua/computer-processory/amd-ryzen-5-7600-100-000001015box/"
+    },
+    {
+      "kind": "cpu",
+      "manufacturer": "AMD",
+      "name": "Ryzen 5 9600X",
+      "price": "171.19",
+      "specs": {
+        "socket": "AM5",
+        "cores": 6,
+        "threads": 12,
+        "base_clock_ghz": 3.9,
+        "boost_clock_ghz": 5.4,
+        "tdp_w": 65,
+        "integrated_graphics": true,
+        "supported_chipsets": [
+          "A620",
+          "B650",
+          "B650E",
+          "X670",
+          "X670E",
+          "B850",
+          "X870",
+          "X870E"
+        ],
+        "memory_types": [
+          "DDR5"
+        ]
+      },
+      "listing_url": "https://hotline.ua/ua/computer-processory/amd-ryzen-5-9600x-100-100001405wof/"
+    },
+    {
+      "kind": "cpu",
+      "manufacturer": "AMD",
+      "name": "Ryzen 7 7800X3D",
+      "price": "327.04",
+      "specs": {
+        "socket": "AM5",
+        "cores": 8,
+        "threads": 16,
+        "base_clock_ghz": 4.2,
+        "boost_clock_ghz": 5.0,
+        "tdp_w": 120,
+        "integrated_graphics": true,
+        "supported_chipsets": [
+          "A620",
+          "B650",
+          "B650E",
+          "X670",
+          "X670E",
+          "B850",
+          "X870",
+          "X870E"
+        ],
+        "memory_types": [
+          "DDR5"
+        ]
+      },
+      "listing_url": "https://hotline.ua/ua/computer-processory/amd-ryzen-7-7800x3d-100-100000910wof/"
+    },
+    {
+      "kind": "cpu",
+      "manufacturer": "AMD",
+      "name": "Ryzen 7 9800X3D",
+      "price": "430.23",
+      "specs": {
+        "socket": "AM5",
+        "cores": 8,
+        "threads": 16,
+        "base_clock_ghz": 4.7,
+        "boost_clock_ghz": 5.2,
+        "tdp_w": 120,
+        "integrated_graphics": true,
+        "supported_chipsets": [
+          "B650",
+          "B650E",
+          "X670",
+          "X670E",
+          "B850",
+          "X870",
+          "X870E"
+        ],
+        "memory_types": [
+          "DDR5"
+        ]
+      },
+      "listing_url": "https://hotline.ua/ua/computer-processory/amd-ryzen-7-9800x3d-100-1000001084wof/"
+    },
+    {
+      "kind": "cpu",
+      "manufacturer": "AMD",
+      "name": "Ryzen 9 9950X",
+      "price": "472.59",
+      "specs": {
+        "socket": "AM5",
+        "cores": 16,
+        "threads": 32,
+        "base_clock_ghz": 4.3,
+        "boost_clock_ghz": 5.7,
+        "tdp_w": 170,
+        "integrated_graphics": true,
+        "supported_chipsets": [
+          "B650",
+          "B650E",
+          "X670",
+          "X670E",
+          "B850",
+          "X870",
+          "X870E"
+        ],
+        "memory_types": [
+          "DDR5"
+        ]
+      },
+      "listing_url": "https://hotline.ua/ua/computer-processory/amd-ryzen-9-9950x-100-100001277wof/"
+    },
+    {
+      "kind": "cpu",
+      "manufacturer": "AMD",
+      "name": "Ryzen 5 5600",
+      "price": "137.55",
+      "specs": {
+        "socket": "AM4",
+        "cores": 6,
+        "threads": 12,
+        "base_clock_ghz": 3.5,
+        "boost_clock_ghz": 4.4,
+        "tdp_w": 65,
+        "integrated_graphics": false,
+        "supported_chipsets": [
+          "A520",
+          "B450",
+          "X470",
+          "B550",
+          "X570"
+        ],
+        "memory_types": [
+          "DDR4"
+        ]
+      },
+      "listing_url": "https://hotline.ua/ua/computer-processory/amd-ryzen-5-5600-100-100000927box/"
+    },
+    {
+      "kind": "cpu",
+      "manufacturer": "AMD",
+      "name": "Ryzen 5 5600G",
+      "price": "193.53",
+      "specs": {
+        "socket": "AM4",
+        "cores": 6,
+        "threads": 12,
+        "base_clock_ghz": 3.9,
+        "boost_clock_ghz": 4.4,
+        "tdp_w": 65,
+        "integrated_graphics": true,
+        "supported_chipsets": [
+          "A520",
+          "B450",
+          "X470",
+          "B550",
+          "X570"
+        ],
+        "memory_types": [
+          "DDR4"
+        ]
+      },
+      "listing_url": "https://hotline.ua/ua/computer-processory/amd-ryzen-5-5600g-100-100000252box/"
+    },
+    {
+      "kind": "cpu",
+      "manufacturer": "AMD",
+      "name": "Ryzen 7 5700X3D",
+      "price": "200.00",
+      "specs": {
+        "socket": "AM4",
+        "cores": 8,
+        "threads": 16,
+        "base_clock_ghz": 3.0,
+        "boost_clock_ghz": 4.1,
+        "tdp_w": 105,
+        "integrated_graphics": false,
+        "supported_chipsets": [
+          "A520",
+          "B450",
+          "X470",
+          "B550",
+          "X570"
+        ],
+        "memory_types": [
+          "DDR4"
+        ]
+      },
+      "listing_url": "https://hotline.ua/ua/computer-processory/amd-ryzen-7-5700x3d-100-100001503/"
+    },
+    {
+      "kind": "cpu",
+      "manufacturer": "Intel",
+      "name": "Core i5-12400F",
+      "price": "158.37",
+      "specs": {
+        "socket": "LGA1700",
+        "cores": 6,
+        "threads": 12,
+        "base_clock_ghz": 2.5,
+        "boost_clock_ghz": 4.4,
+        "tdp_w": 65,
+        "integrated_graphics": false,
+        "supported_chipsets": [
+          "H610",
+          "B660",
+          "H670",
+          "Z690",
+          "B760",
+          "H770",
+          "Z790"
+        ],
+        "memory_types": [
+          "DDR4",
+          "DDR5"
+        ]
+      },
+      "listing_url": "https://hotline.ua/ua/computer-processory/intel-core-i5-12400f-bx8071512400f/"
+    },
+    {
+      "kind": "cpu",
+      "manufacturer": "Intel",
+      "name": "Core i5-14600K",
+      "price": "288.49",
+      "specs": {
+        "socket": "LGA1700",
+        "cores": 14,
+        "threads": 20,
+        "base_clock_ghz": 3.5,
+        "boost_clock_ghz": 5.3,
+        "tdp_w": 125,
+        "integrated_graphics": true,
+        "supported_chipsets": [
+          "H610",
+          "B660",
+          "H670",
+          "Z690",
+          "B760",
+          "H770",
+          "Z790"
+        ],
+        "memory_types": [
+          "DDR4",
+          "DDR5"
+        ]
+      },
+      "listing_url": "https://hotline.ua/ua/computer-processory/intel-core-i5-14600k-bx8071514600k/"
+    },
+    {
+      "kind": "cpu",
+      "manufacturer": "Intel",
+      "name": "Core i7-14700K",
+      "price": "410.06",
+      "specs": {
+        "socket": "LGA1700",
+        "cores": 20,
+        "threads": 28,
+        "base_clock_ghz": 3.4,
+        "boost_clock_ghz": 5.6,
+        "tdp_w": 125,
+        "integrated_graphics": true,
+        "supported_chipsets": [
+          "H610",
+          "B660",
+          "H670",
+          "Z690",
+          "B760",
+          "H770",
+          "Z790"
+        ],
+        "memory_types": [
+          "DDR4",
+          "DDR5"
+        ]
+      },
+      "listing_url": "https://hotline.ua/ua/computer-processory/intel-core-i7-14700k-bx8071514700k/"
+    },
+    {
+      "kind": "cpu",
+      "manufacturer": "Intel",
+      "name": "Core Ultra 5 245K",
+      "price": "185.48",
+      "specs": {
+        "socket": "LGA1851",
+        "cores": 14,
+        "threads": 14,
+        "base_clock_ghz": 4.2,
+        "boost_clock_ghz": 5.2,
+        "tdp_w": 125,
+        "integrated_graphics": true,
+        "supported_chipsets": [
+          "H810",
+          "B860",
+          "Z890"
+        ],
+        "memory_types": [
+          "DDR5"
+        ]
+      },
+      "listing_url": "https://hotline.ua/ua/computer-processory/intel-core-ultra-5-245k-bx80768245k/"
+    },
+    {
+      "kind": "cpu",
+      "manufacturer": "Intel",
+      "name": "Core Ultra 7 265K",
+      "price": "315.36",
+      "specs": {
+        "socket": "LGA1851",
+        "cores": 20,
+        "threads": 20,
+        "base_clock_ghz": 3.9,
+        "boost_clock_ghz": 5.5,
+        "tdp_w": 125,
+        "integrated_graphics": true,
+        "supported_chipsets": [
+          "H810",
+          "B860",
+          "Z890"
+        ],
+        "memory_types": [
+          "DDR5"
+        ]
+      },
+      "listing_url": "https://hotline.ua/ua/computer-processory/intel-core-ultra-7-265k-bx80768265k/"
+    },
+    {
+      "kind": "motherboard",
+      "manufacturer": "MSI",
+      "name": "PRO B650M-A WIFI",
+      "price": "172.77",
+      "specs": {
+        "socket": "AM5",
+        "chipset": "B650",
+        "form_factor": "Micro-ATX",
+        "memory_type": "DDR5",
+        "memory_slots": 4,
+        "max_memory_gb": 192,
+        "m2_slots": 2,
+        "sata_ports": 4
+      },
+      "listing_url": "https://hotline.ua/ua/computer-materinskie-platy/msi-pro-b650m-a-wifi/"
+    },
+    {
+      "kind": "motherboard",
+      "manufacturer": "ASUS",
+      "name": "TUF GAMING B650-PLUS WIFI",
+      "price": "165.08",
+      "specs": {
+        "socket": "AM5",
+        "chipset": "B650",
+        "form_factor": "ATX",
+        "memory_type": "DDR5",
+        "memory_slots": 4,
+        "max_memory_gb": 192,
+        "m2_slots": 3,
+        "sata_ports": 4
+      },
+      "listing_url": "https://hotline.ua/ua/computer-materinskie-platy/asus-tuf-gaming-b650-plus-wifi/"
+    },
+    {
+      "kind": "motherboard",
+      "manufacturer": "Gigabyte",
+      "name": "X870E AORUS ELITE WIFI7",
+      "price": "328.60",
+      "specs": {
+        "socket": "AM5",
+        "chipset": "X870E",
+        "form_factor": "ATX",
+        "memory_type": "DDR5",
+        "memory_slots": 4,
+        "max_memory_gb": 256,
+        "m2_slots": 4,
+        "sata_ports": 4
+      },
+      "listing_url": "https://hotline.ua/ua/computer-materinskie-platy/gigabyte-x870e-aorus-elite-wifi7/"
+    },
+    {
+      "kind": "motherboard",
+      "manufacturer": "ASRock",
+      "name": "B650I Lightning WiFi",
+      "price": "184.59",
+      "specs": {
+        "socket": "AM5",
+        "chipset": "B650",
+        "form_factor": "Mini-ITX",
+        "memory_type": "DDR5",
+        "memory_slots": 2,
+        "max_memory_gb": 96,
+        "m2_slots": 2,
+        "sata_ports": 2
+      },
+      "listing_url": "https://hotline.ua/ua/computer-materinskie-platy/asrock-b650i-lightning-wifi/"
+    },
+    {
+      "kind": "motherboard",
+      "manufacturer": "ASRock",
+      "name": "A620M-HDV/M.2+",
+      "price": "85.00",
+      "specs": {
+        "socket": "AM5",
+        "chipset": "A620",
+        "form_factor": "Micro-ATX",
+        "memory_type": "DDR5",
+        "memory_slots": 2,
+        "max_memory_gb": 96,
+        "m2_slots": 1,
+        "sata_ports": 4
+      },
+      "listing_url": "https://hotline.ua/ua/computer-materinskie-platy/asrock-a620m-hdvm2plus/"
+    },
+    {
+      "kind": "motherboard",
+      "manufacturer": "MSI",
+      "name": "MAG B550 TOMAHAWK",
+      "price": "140.00",
+      "specs": {
+        "socket": "AM4",
+        "chipset": "B550",
+        "form_factor": "ATX",
+        "memory_type": "DDR4",
+        "memory_slots": 4,
+        "max_memory_gb": 128,
+        "m2_slots": 2,
+        "sata_ports": 6
+      },
+      "listing_url": "https://hotline.ua/ua/computer-materinskie-platy/msi-mag-b550-tomahawk/"
+    },
+    {
+      "kind": "motherboard",
+      "manufacturer": "ASRock",
+      "name": "B450M Pro4",
+      "price": "75.00",
+      "specs": {
+        "socket": "AM4",
+        "chipset": "B450",
+        "form_factor": "Micro-ATX",
+        "memory_type": "DDR4",
+        "memory_slots": 4,
+        "max_memory_gb": 128,
+        "m2_slots": 2,
+        "sata_ports": 4
+      },
+      "listing_url": "https://hotline.ua/ua/computer-materinskie-platy/asrock-b450m-pro4/"
+    },
+    {
+      "kind": "motherboard",
+      "manufacturer": "Gigabyte",
+      "name": "B760M DS3H DDR4",
+      "price": "98.07",
+      "specs": {
+        "socket": "LGA1700",
+        "chipset": "B760",
+        "form_factor": "Micro-ATX",
+        "memory_type": "DDR4",
+        "memory_slots": 4,
+        "max_memory_gb": 128,
+        "m2_slots": 2,
+        "sata_ports": 4
+      },
+      "listing_url": "https://hotline.ua/ua/computer-materinskie-platy/gigabyte-b760m-ds3h-ddr4/"
+    },
+    {
+      "kind": "motherboard",
+      "manufacturer": "ASUS",
+      "name": "PRIME Z790-P WIFI",
+      "price": "203.11",
+      "specs": {
+        "socket": "LGA1700",
+        "chipset": "Z790",
+        "form_factor": "ATX",
+        "memory_type": "DDR5",
+        "memory_slots": 4,
+        "max_memory_gb": 192,
+        "m2_slots": 3,
+        "sata_ports": 4
+      },
+      "listing_url": "https://hotline.ua/ua/computer-materinskie-platy/asus-prime-z790-p-wifi/"
+    },
+    {
+      "kind": "motherboard",
+      "manufacturer": "ASUS",
+      "name": "TUF GAMING Z890-PLUS WIFI",
+      "price": "305.24",
+      "specs": {
+        "socket": "LGA1851",
+        "chipset": "Z890",
+        "form_factor": "ATX",
+        "memory_type": "DDR5",
+        "memory_slots": 4,
+        "max_memory_gb": 192,
+        "m2_slots": 4,
+        "sata_ports": 4
+      },
+      "listing_url": "https://hotline.ua/ua/computer-materinskie-platy/asus-tuf-gaming-z890-plus-wifi/"
+    },
+    {
+      "kind": "motherboard",
+      "manufacturer": "MSI",
+      "name": "PRO B860M-A WIFI",
+      "price": "256.55",
+      "specs": {
+        "socket": "LGA1851",
+        "chipset": "B860",
+        "form_factor": "Micro-ATX",
+        "memory_type": "DDR5",
+        "memory_slots": 4,
+        "max_memory_gb": 256,
+        "m2_slots": 3,
+        "sata_ports": 4
+      },
+      "listing_url": "https://hotline.ua/ua/computer-materinskie-platy/msi-pro-b860m-a-wifi/"
+    },
+    {
+      "kind": "ram",
+      "manufacturer": "Kingston",
+      "name": "FURY Beast 16GB (2x8GB) DDR4-3200",
+      "price": "205.94",
+      "specs": {
+        "memory_type": "DDR4",
+        "modules": 2,
+        "module_size_gb": 8,
+        "speed_mhz": 3200
+      },
+      "listing_url": "https://hotline.ua/ua/computer-moduli-pamyati-dlya-pk-i-noutbukov/kingston-fury-16-gb-2x8gb-ddr4-3200-mhz-beast-black-kf432c16bbk216/"
+    },
+    {
+      "kind": "ram",
+      "manufacturer": "Corsair",
+      "name": "Vengeance LPX 32GB (2x16GB) DDR4-3200",
+      "price": "236.28",
+      "specs": {
+        "memory_type": "DDR4",
+        "modules": 2,
+        "module_size_gb": 16,
+        "speed_mhz": 3200
+      },
+      "listing_url": "https://hotline.ua/ua/computer-moduli-pamyati-dlya-pk-i-noutbukov/corsair-32-gb-2x16gb-ddr4-3200-mhz-vengeance-lpx-black-cmk32gx4m2e3200c16/"
+    },
+    {
+      "kind": "ram",
+      "manufacturer": "Crucial",
+      "name": "Pro 32GB (2x16GB) DDR5-5600",
+      "price": "667.45",
+      "specs": {
+        "memory_type": "DDR5",
+        "modules": 2,
+        "module_size_gb": 16,
+        "speed_mhz": 5600
+      },
+      "listing_url": "https://hotline.ua/ua/computer-moduli-pamyati-dlya-pk-i-noutbukov/crucial-32-gb-2x16gb-ddr5-5600-mhz-pro-cp2k16g56c46u5/"
+    },
+    {
+      "kind": "ram",
+      "manufacturer": "G.Skill",
+      "name": "Flare X5 32GB (2x16GB) DDR5-6000",
+      "price": "647.34",
+      "specs": {
+        "memory_type": "DDR5",
+        "modules": 2,
+        "module_size_gb": 16,
+        "speed_mhz": 6000
+      },
+      "listing_url": "https://hotline.ua/ua/computer-moduli-pamyati-dlya-pk-i-noutbukov/gskill-32-gb-2x16gb-ddr5-6000-mhz-flare-x5-f5-6000j3038f16gx2-fx5/"
+    },
+    {
+      "kind": "ram",
+      "manufacturer": "Kingston",
+      "name": "FURY Beast 32GB (2x16GB) DDR5-6000",
+      "price": "639.79",
+      "specs": {
+        "memory_type": "DDR5",
+        "modules": 2,
+        "module_size_gb": 16,
+        "speed_mhz": 6000
+      },
+      "listing_url": "https://hotline.ua/ua/computer-moduli-pamyati-dlya-pk-i-noutbukov/kingston-fury-32-gb-2x16gb-ddr5-6000-mhz-beast-expo-kf560c30bbek2-32/"
+    },
+    {
+      "kind": "ram",
+      "manufacturer": "Corsair",
+      "name": "Vengeance RGB 64GB (2x32GB) DDR5-6000",
+      "price": "1924.09",
+      "specs": {
+        "memory_type": "DDR5",
+        "modules": 2,
+        "module_size_gb": 32,
+        "speed_mhz": 6000
+      },
+      "listing_url": "https://hotline.ua/ua/computer-moduli-pamyati-dlya-pk-i-noutbukov/corsair-64-gb-2x32gb-ddr5-6000-mhz-vengeance-rgb-cmh64gx5m2b6000c30/"
+    },
+    {
+      "kind": "gpu",
+      "manufacturer": "ASRock",
+      "name": "Intel Arc B580 Challenger 12GB OC",
+      "price": "382.08",
+      "specs": {
+        "chipset": "Arc B580",
+        "vram_gb": 12,
+        "length_mm": 270,
+        "tdp_w": 190,
+        "recommended_psu_w": 600
+      },
+      "listing_url": "https://hotline.ua/ua/computer-videokarty/asrock-intel-arc-b580-challenger-12gb-oc-b580-cl-12go/"
+    },
+    {
+      "kind": "gpu",
+      "manufacturer": "Sapphire",
+      "name": "PULSE Radeon RX 7600 8GB",
+      "price": "407.81",
+      "specs": {
+        "chipset": "Radeon RX 7600",
+        "vram_gb": 8,
+        "length_mm": 240,
+        "tdp_w": 165,
+        "recommended_psu_w": 550
+      },
+      "listing_url": "https://hotline.ua/ua/computer-videokarty/sapphire-radeon-rx-7600-8-gb-pulse-11324-01-20g/"
+    },
+    {
+      "kind": "gpu",
+      "manufacturer": "MSI",
+      "name": "GeForce RTX 4060 VENTUS 2X BLACK 8G OC",
+      "price": "300.00",
+      "specs": {
+        "chipset": "GeForce RTX 4060",
+        "vram_gb": 8,
+        "length_mm": 199,
+        "tdp_w": 115,
+        "recommended_psu_w": 550
+      },
+      "listing_url": "https://hotline.ua/ua/computer-videokarty/msi-geforce-rtx-4060-ventus-2x-black-8g-oc/"
+    },
+    {
+      "kind": "gpu",
+      "manufacturer": "Gigabyte",
+      "name": "GeForce RTX 5060 Ti WINDFORCE OC 16G",
+      "price": "784.05",
+      "specs": {
+        "chipset": "GeForce RTX 5060 Ti",
+        "vram_gb": 16,
+        "length_mm": 208,
+        "tdp_w": 180,
+        "recommended_psu_w": 650
+      },
+      "listing_url": "https://hotline.ua/ua/computer-videokarty/gigabyte-geforce-rtx-5060-ti-windforce-oc-16g-gv-n506twf2oc-16gd/"
+    },
+    {
+      "kind": "gpu",
+      "manufacturer": "Sapphire",
+      "name": "PULSE Radeon RX 7800 XT 16GB",
+      "price": "480.00",
+      "specs": {
+        "chipset": "Radeon RX 7800 XT",
+        "vram_gb": 16,
+        "length_mm": 280,
+        "tdp_w": 263,
+        "recommended_psu_w": 700
+      },
+      "listing_url": "https://hotline.ua/ua/computer-videokarty/sapphire-radeon-rx-7800-xt-16gb-pulse-11330-02-20g/"
+    },
+    {
+      "kind": "gpu",
+      "manufacturer": "Sapphire",
+      "name": "PULSE Radeon RX 9070 XT 16GB",
+      "price": "980.80",
+      "specs": {
+        "chipset": "Radeon RX 9070 XT",
+        "vram_gb": 16,
+        "length_mm": 320,
+        "tdp_w": 304,
+        "recommended_psu_w": 750
+      },
+      "listing_url": "https://hotline.ua/ua/computer-videokarty/sapphire-radeon-rx-9070-xt-gpu-16gb-pulse-11348-03-20g/"
+    },
+    {
+      "kind": "gpu",
+      "manufacturer": "ASUS",
+      "name": "TUF Gaming GeForce RTX 5070 Ti 16GB",
+      "price": "1602.76",
+      "specs": {
+        "chipset": "GeForce RTX 5070 Ti",
+        "vram_gb": 16,
+        "length_mm": 348,
+        "tdp_w": 300,
+        "recommended_psu_w": 750
+      },
+      "listing_url": "https://hotline.ua/ua/computer-videokarty/asus-tuf-rtx5070ti-o16g-gaming/"
+    },
+    {
+      "kind": "gpu",
+      "manufacturer": "MSI",
+      "name": "GeForce RTX 5080 GAMING TRIO 16G",
+      "price": "1738.07",
+      "specs": {
+        "chipset": "GeForce RTX 5080",
+        "vram_gb": 16,
+        "length_mm": 338,
+        "tdp_w": 360,
+        "recommended_psu_w": 850
+      },
+      "listing_url": "https://hotline.ua/ua/computer-videokarty/msi-geforce-rtx-5080-16g-gaming-trio-oc/"
+    },
+    {
+      "kind": "gpu",
+      "manufacturer": "ASUS",
+      "name": "ROG Astral GeForce RTX 5090 32GB",
+      "price": "5573.25",
+      "specs": {
+        "chipset": "GeForce RTX 5090",
+        "vram_gb": 32,
+        "length_mm": 358,
+        "tdp_w": 575,
+        "recommended_psu_w": 1000
+      },
+      "listing_url": "https://hotline.ua/ua/computer-videokarty/asus-rog-astral-rtx5090-o32g-gaming/"
+    },
+    {
+      "kind": "storage",
+      "manufacturer": "Crucial",
+      "name": "P3 Plus 1TB",
+      "price": "192.17",
+      "specs": {
+        "interface": "M.2 NVMe",
+        "capacity_gb": 1000
+      },
+      "listing_url": "https://hotline.ua/ua/computer-diski-ssd/crucial-p3-plus-1-tb-ct1000p3pssd8/"
+    },
+    {
+      "kind": "storage",
+      "manufacturer": "Samsung",
+      "name": "990 PRO 1TB",
+      "price": "227.39",
+      "specs": {
+        "interface": "M.2 NVMe",
+        "capacity_gb": 1000
+      },
+      "listing_url": "https://hotline.ua/ua/computer-diski-ssd/samsung-990-pro-1-tb-mz-v9p1t0bw/"
+    },
+    {
+      "kind": "storage",
+      "manufacturer": "Samsung",
+      "name": "990 PRO 2TB",
+      "price": "362.69",
+      "specs": {
+        "interface": "M.2 NVMe",
+        "capacity_gb": 2000
+      },
+      "listing_url": "https://hotline.ua/ua/computer-diski-ssd/samsung-990-pro-2-tb-mz-v9p2t0bw/"
+    },
+    {
+      "kind": "storage",
+      "manufacturer": "Western Digital",
+      "name": "WD_BLACK SN850X 2TB",
+      "price": "378.74",
+      "specs": {
+        "interface": "M.2 NVMe",
+        "capacity_gb": 2000
+      },
+      "listing_url": "https://hotline.ua/ua/computer-diski-ssd/wd-black-sn850x-2-tb-wds200t2x0e/"
+    },
+    {
+      "kind": "storage",
+      "manufacturer": "Kingston",
+      "name": "A400 960GB",
+      "price": "142.81",
+      "specs": {
+        "interface": "SATA",
+        "capacity_gb": 960
+      },
+      "listing_url": "https://hotline.ua/ua/computer-diski-ssd/kingston-ssdnow-a400-960-gb-sa400s37960g/"
+    },
+    {
+      "kind": "storage",
+      "manufacturer": "Seagate",
+      "name": "BarraCuda 2TB HDD",
+      "price": "146.06",
+      "specs": {
+        "interface": "SATA",
+        "capacity_gb": 2000
+      },
+      "listing_url": "https://hotline.ua/ua/computer-zhestkie-diski/seagate-barracuda-35-st2000dm008/"
+    },
+    {
+      "kind": "cooler",
+      "manufacturer": "DeepCool",
+      "name": "AK400",
+      "price": "31.17",
+      "specs": {
+        "type": "air",
+        "sockets": [
+          "AM4",
+          "AM5",
+          "LGA1700",
+          "LGA1851"
+        ],
+        "height_mm": 155,
+        "tdp_rating_w": 220
+      },
+      "listing_url": "https://hotline.ua/ua/computer-kulery-i-radiatory/deepcool-ak400-r-ak400-bknnmn-g-1/"
+    },
+    {
+      "kind": "cooler",
+      "manufacturer": "Thermalright",
+      "name": "Peerless Assassin 120 SE",
+      "price": "49.67",
+      "specs": {
+        "type": "air",
+        "sockets": [
+          "AM4",
+          "AM5",
+          "LGA1700",
+          "LGA1851"
+        ],
+        "height_mm": 155,
+        "tdp_rating_w": 245
+      },
+      "listing_url": "https://hotline.ua/ua/computer-kulery-i-radiatory/thermalright-peerless-assassin-120-se-black/"
+    },
+    {
+      "kind": "cooler",
+      "manufacturer": "Noctua",
+      "name": "NH-L9a-AM5",
+      "price": "51.21",
+      "specs": {
+        "type": "air",
+        "sockets": [
+          "AM4",
+          "AM5"
+        ],
+        "height_mm": 37,
+        "tdp_rating_w": 65
+      },
+      "listing_url": "https://hotline.ua/ua/computer-kulery-i-radiatory/noctua-nh-l9a-am5/"
+    },
+    {
+      "kind": "cooler",
+      "manufacturer": "Noctua",
+      "name": "NH-D15 G2",
+      "price": "155.56",
+      "specs": {
+        "type": "air",
+        "sockets": [
+          "AM4",
+          "AM5",
+          "LGA1700",
+          "LGA1851"
+        ],
+        "height_mm": 168,
+        "tdp_rating_w": 250
+      },
+      "listing_url": "https://hotline.ua/ua/computer-kulery-i-radiatory/noctua-nh-d15-g2/"
+    },
+    {
+      "kind": "cooler",
+      "manufacturer": "Arctic",
+      "name": "Liquid Freezer III 280",
+      "price": "190.36",
+      "specs": {
+        "type": "liquid",
+        "sockets": [
+          "AM4",
+          "AM5",
+          "LGA1700",
+          "LGA1851"
+        ],
+        "radiator_mm": 280,
+        "tdp_rating_w": 280
+      },
+      "listing_url": "https://hotline.ua/ua/computer-kulery-i-radiatory/arctic-liquid-freezer-iii-280-black-acfre00135a/"
+    },
+    {
+      "kind": "cooler",
+      "manufacturer": "Arctic",
+      "name": "Liquid Freezer III 360",
+      "price": "85.58",
+      "specs": {
+        "type": "liquid",
+        "sockets": [
+          "AM4",
+          "AM5",
+          "LGA1700",
+          "LGA1851"
+        ],
+        "radiator_mm": 360,
+        "tdp_rating_w": 300
+      },
+      "listing_url": "https://hotline.ua/ua/computer-kulery-i-radiatory/arctic-liquid-freezer-iii-360-black-acfre00136a/"
+    },
+    {
+      "kind": "psu",
+      "manufacturer": "Cooler Master",
+      "name": "MWE 600 Bronze V2",
+      "price": "45.00",
+      "specs": {
+        "wattage": 600,
+        "form_factor": "ATX",
+        "efficiency": "80+ Bronze"
+      },
+      "listing_url": "https://hotline.ua/ua/computer-bloki-pitaniya/cooler-master-mwe-600-bronze-v2-mpe-6001-acaab-eu/"
+    },
+    {
+      "kind": "psu",
+      "manufacturer": "be quiet!",
+      "name": "Pure Power 12 550W",
+      "price": "91.33",
+      "specs": {
+        "wattage": 550,
+        "form_factor": "ATX",
+        "efficiency": "80+ Gold"
+      },
+      "listing_url": "https://hotline.ua/ua/computer-bloki-pitaniya/be-quiet-pure-power-12-550w-bp001/"
+    },
+    {
+      "kind": "psu",
+      "manufacturer": "Corsair",
+      "name": "RM650e",
+      "price": "100.30",
+      "specs": {
+        "wattage": 650,
+        "form_factor": "ATX",
+        "efficiency": "80+ Gold"
+      },
+      "listing_url": "https://hotline.ua/ua/computer-bloki-pitaniya/corsair-rm650e-cp-9020302/"
+    },
+    {
+      "kind": "psu",
+      "manufacturer": "Seasonic",
+      "name": "FOCUS GX-750",
+      "price": "136.68",
+      "specs": {
+        "wattage": 750,
+        "form_factor": "ATX",
+        "efficiency": "80+ Gold"
+      },
+      "listing_url": "https://hotline.ua/ua/computer-bloki-pitaniya/seasonic-gx-750w-atx-31-black/"
+    },
+    {
+      "kind": "psu",
+      "manufacturer": "Corsair",
+      "name": "RM850x",
+      "price": "139.96",
+      "specs": {
+        "wattage": 850,
+        "form_factor": "ATX",
+        "efficiency": "80+ Gold"
+      },
+      "listing_url": "https://hotline.ua/ua/computer-bloki-pitaniya/corsair-rm850x-cp-9020270/"
+    },
+    {
+      "kind": "psu",
+      "manufacturer": "Corsair",
+      "name": "SF750",
+      "price": "193.93",
+      "specs": {
+        "wattage": 750,
+        "form_factor": "SFX",
+        "efficiency": "80+ Platinum"
+      },
+      "listing_url": "https://hotline.ua/ua/computer-bloki-pitaniya/corsair-sf750-cp-9020284/"
+    },
+    {
+      "kind": "psu",
+      "manufacturer": "Seasonic",
+      "name": "Focus GX-1000 ATX 3.1",
+      "price": "218.45",
+      "specs": {
+        "wattage": 1000,
+        "form_factor": "ATX",
+        "efficiency": "80+ Gold"
+      },
+      "listing_url": "https://hotline.ua/ua/computer-bloki-pitaniya/seasonic-focus-gx-1000-atx-31-white/"
+    },
+    {
+      "kind": "psu",
+      "manufacturer": "be quiet!",
+      "name": "Dark Power Pro 13 1300W",
+      "price": "412.24",
+      "specs": {
+        "wattage": 1300,
+        "form_factor": "ATX",
+        "efficiency": "80+ Titanium"
+      },
+      "listing_url": "https://hotline.ua/ua/computer-bloki-pitaniya/be-quiet-dark-power-pro-13-1300w-bn331/"
+    },
+    {
+      "kind": "case",
+      "manufacturer": "DeepCool",
+      "name": "CH370",
+      "price": "47.31",
+      "specs": {
+        "supported_form_factors": [
+          "Micro-ATX",
+          "Mini-ITX"
+        ],
+        "max_gpu_length_mm": 320,
+        "max_cooler_height_mm": 165,
+        "psu_form_factors": [
+          "ATX"
+        ],
+        "max_radiator_mm": 360
+      },
+      "listing_url": "https://hotline.ua/ua/computer-korpusa/deepcool-ch370-black-r-ch370-bknam1-g-1/"
+    },
+    {
+      "kind": "case",
+      "manufacturer": "NZXT",
+      "name": "H5 Flow Black",
+      "price": "66.86",
+      "specs": {
+        "supported_form_factors": [
+          "ATX",
+          "Micro-ATX",
+          "Mini-ITX"
+        ],
+        "max_gpu_length_mm": 365,
+        "max_cooler_height_mm": 165,
+        "psu_form_factors": [
+          "ATX"
+        ],
+        "max_radiator_mm": 360
+      },
+      "listing_url": "https://hotline.ua/ua/computer-korpusa/nzxt-h5-flow-black-cc-h52fb-01/"
+    },
+    {
+      "kind": "case",
+      "manufacturer": "Montech",
+      "name": "AIR 903 MAX",
+      "price": "93.72",
+      "specs": {
+        "supported_form_factors": [
+          "E-ATX",
+          "ATX",
+          "Micro-ATX",
+          "Mini-ITX"
+        ],
+        "max_gpu_length_mm": 400,
+        "max_cooler_height_mm": 180,
+        "psu_form_factors": [
+          "ATX"
+        ],
+        "max_radiator_mm": 360
+      },
+      "listing_url": "https://hotline.ua/ua/computer-korpusa/montech-air-903-max-black/"
+    },
+    {
+      "kind": "case",
+      "manufacturer": "Fractal Design",
+      "name": "North",
+      "price": "176.00",
+      "specs": {
+        "supported_form_factors": [
+          "ATX",
+          "Micro-ATX",
+          "Mini-ITX"
+        ],
+        "max_gpu_length_mm": 355,
+        "max_cooler_height_mm": 170,
+        "psu_form_factors": [
+          "ATX"
+        ],
+        "max_radiator_mm": 360
+      },
+      "listing_url": "https://hotline.ua/ua/computer-korpusa/fractal-design-north-charcoal-black-fd-c-nor1c-01/"
+    },
+    {
+      "kind": "case",
+      "manufacturer": "Lian Li",
+      "name": "O11 Dynamic EVO RGB Black",
+      "price": "187.26",
+      "specs": {
+        "supported_form_factors": [
+          "E-ATX",
+          "ATX",
+          "Micro-ATX",
+          "Mini-ITX"
+        ],
+        "max_gpu_length_mm": 426,
+        "max_cooler_height_mm": 167,
+        "psu_form_factors": [
+          "ATX"
+        ],
+        "max_radiator_mm": 360
+      },
+      "listing_url": "https://hotline.ua/ua/computer-korpusa/lian-li-o11-dynamic-evo-rgb-black-g99o11dergbx00/"
+    },
+    {
+      "kind": "case",
+      "manufacturer": "Cooler Master",
+      "name": "MasterBox NR200P",
+      "price": "98.07",
+      "specs": {
+        "supported_form_factors": [
+          "Mini-ITX"
+        ],
+        "max_gpu_length_mm": 330,
+        "max_cooler_height_mm": 155,
+        "psu_form_factors": [
+          "SFX",
+          "SFX-L"
+        ],
+        "max_radiator_mm": 280
+      },
+      "listing_url": "https://hotline.ua/ua/computer-korpusa/cooler-master-masterbox-nr200p-mcb-nr200p-kgnn-s00/"
+    }
+  ],
+  "demo_builds": [
+    {
+      "name": "Budget 1080p gaming",
+      "description": "AM4 value build that still plays everything at 1080p.",
+      "components": [
+        "Ryzen 5 5600",
+        "B450M Pro4",
+        "FURY Beast 16GB (2x8GB) DDR4-3200",
+        "PULSE Radeon RX 7600 8GB",
+        "P3 Plus 1TB",
+        "AK400",
+        "Pure Power 12 550W",
+        "CH370"
+      ]
+    },
+    {
+      "name": "1440p high refresh",
+      "description": "The fastest gaming CPU with a strong mid-high GPU.",
+      "components": [
+        "Ryzen 7 9800X3D",
+        "TUF GAMING B650-PLUS WIFI",
+        "Flare X5 32GB (2x16GB) DDR5-6000",
+        "PULSE Radeon RX 9070 XT 16GB",
+        "WD_BLACK SN850X 2TB",
+        "Peerless Assassin 120 SE",
+        "FOCUS GX-750",
+        "H5 Flow Black"
+      ]
+    },
+    {
+      "name": "Small form factor 1440p",
+      "description": "Mini-ITX in a 18 L case.",
+      "components": [
+        "Ryzen 7 7800X3D",
+        "B650I Lightning WiFi",
+        "FURY Beast 32GB (2x16GB) DDR5-6000",
+        "GeForce RTX 5060 Ti WINDFORCE OC 16G",
+        "990 PRO 1TB",
+        "Peerless Assassin 120 SE",
+        "SF750",
+        "MasterBox NR200P"
+      ]
+    },
+    {
+      "name": "Intel all-rounder",
+      "description": "Gaming and streaming on LGA1700.",
+      "components": [
+        "Core i5-14600K",
+        "PRIME Z790-P WIFI",
+        "FURY Beast 32GB (2x16GB) DDR5-6000",
+        "TUF Gaming GeForce RTX 5070 Ti 16GB",
+        "990 PRO 2TB",
+        "NH-D15 G2",
+        "RM850x",
+        "North"
+      ]
+    },
+    {
+      "name": "4K workstation",
+      "description": "16 cores and the biggest GPU available.",
+      "components": [
+        "Ryzen 9 9950X",
+        "X870E AORUS ELITE WIFI7",
+        "Vengeance RGB 64GB (2x32GB) DDR5-6000",
+        "ROG Astral GeForce RTX 5090 32GB",
+        "990 PRO 2TB",
+        "WD_BLACK SN850X 2TB",
+        "Liquid Freezer III 360",
+        "Focus GX-1000 ATX 3.1",
+        "O11 Dynamic EVO RGB Black"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+backend/staticfiles/
+backend/media/
+celerybeat-schedule*
+
+# Node
+node_modules/
+frontend/dist/
+*.tsbuildinfo
+
+# Env / IDE
+.env
+.vscode/
+.idea/
+.DS_Store
