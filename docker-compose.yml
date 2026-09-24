@@ -17,10 +17,11 @@ x-backend: &backend
     REDIS_URL: redis://redis:6379/0
     DJANGO_DEBUG: ${DJANGO_DEBUG:-0}
     DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY:-local-docker-secret-change-me}
-    DJANGO_ALLOWED_HOSTS: localhost,127.0.0.1,backend
-    DJANGO_CSRF_TRUSTED_ORIGINS: http://localhost:8080
-    FRONTEND_URL: http://localhost:8080
-    SECURE_COOKIES: "0"
+    # Local defaults; a server sets these in .env (see docs/DEPLOY.md).
+    DJANGO_ALLOWED_HOSTS: ${DJANGO_ALLOWED_HOSTS:-localhost,127.0.0.1,backend}
+    DJANGO_CSRF_TRUSTED_ORIGINS: ${DJANGO_CSRF_TRUSTED_ORIGINS:-http://localhost:8080}
+    FRONTEND_URL: ${FRONTEND_URL:-http://localhost:8080}
+    SECURE_COOKIES: ${SECURE_COOKIES:-0}
   depends_on:
     db:
       condition: service_healthy
@@ -54,9 +55,10 @@ services:
       <<: *backend-env
       RUN_MIGRATIONS: "1"
       SEED_DEMO_DATA: "1"
-      # Listing pages per category imported from hotline.ua in the background
-      # (48 products per page); 0 keeps only the curated demo catalog.
-      IMPORT_CATALOG_PAGES: ${IMPORT_CATALOG_PAGES:-1}
+      # Listing pages per category to import from the market source (48 products
+      # per page). Needs MARKET_FETCH_ENABLED=1 and the source's permission;
+      # 0 keeps the curated demo catalog only.
+      IMPORT_CATALOG_PAGES: ${IMPORT_CATALOG_PAGES:-0}
     ports:
       - "8000:8000"
     healthcheck:
@@ -83,6 +85,9 @@ services:
     build: ./frontend
     ports:
       - "8080:80"
+    # nginx serves the mirrored product photos straight from the shared volume.
+    volumes:
+      - media:/srv/media:ro
     depends_on:
       backend:
         condition: service_healthy

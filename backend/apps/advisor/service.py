@@ -1,8 +1,10 @@
 import logging
 from dataclasses import dataclass
+from datetime import date
 from decimal import Decimal
 
 from django.conf import settings
+from django.core.cache import cache
 
 from . import tools
 from .llm import AdvisorError, advise_with_claude
@@ -32,6 +34,7 @@ TEXTS = {
             "that raises no compatibility problems."
         ),
         "AI_UNAVAILABLE": "The AI advisor was unavailable; this is the rule-based recommendation.",
+        "AI_LIMIT": "Today's AI quota is used up; this is the rule-based recommendation.",
         "REPLANNED": "Re-planned with smaller shares to fit the budget.",
         "OVER_BUDGET": "Total {total} is above the {budget} budget.",
         "NO_GPU_NEEDED": "No graphics card: integrated graphics are enough for office work.",
@@ -47,6 +50,7 @@ TEXTS = {
             "варіант без проблем сумісності."
         ),
         "AI_UNAVAILABLE": "AI-порадник недоступний, це рекомендація планувальника на правилах.",
+        "AI_LIMIT": "Денний ліміт AI вичерпано, це рекомендація планувальника на правилах.",
         "REPLANNED": "Переплановано з меншими частками, щоб вкластися в бюджет.",
         "OVER_BUDGET": "Разом {total} — більше за бюджет {budget}.",
         "NO_GPU_NEEDED": "Без відеокарти: для офісу достатньо вбудованої графіки.",
@@ -82,6 +86,24 @@ class Money:
         return f"${value:,.2f}"
 
 
+def take_llm_quota() -> bool:
+    """Count one Claude call against today's site-wide limit. False when it is used up.
+
+    A cache counter (Redis in production) keyed by date; it expires by itself.
+    """
+    limit = settings.ADVISOR_DAILY_LLM_LIMIT
+    if limit <= 0:
+        return False
+    key = f"advisor:llm-calls:{date.today().isoformat()}"
+    cache.add(key, 0, timeout=2 * 24 * 60 * 60)
+    try:
+        used = cache.incr(key)
+    except ValueError:  # evicted between add() and incr()
+        cache.set(key, 1, timeout=2 * 24 * 60 * 60)
+        used = 1
+    return used <= limit
+
+
 def render_note(code: str, params: dict, language: str, money: Money | None = None) -> str:
     params = dict(params)
     if money is not None:
@@ -106,7 +128,9 @@ def advise(
     language = language if language in LANGUAGES else "en"
     display = display or Money(budget)
     notes: list[str] = []
-    if settings.ANTHROPIC_API_KEY:
+    if settings.ANTHROPIC_API_KEY and not take_llm_quota():
+        notes.append(TEXTS[language]["AI_LIMIT"])
+    elif settings.ANTHROPIC_API_KEY:
         try:
             result = advise_with_claude(
                 budget=budget, use_case=use_case, preferences=preferences, language=language

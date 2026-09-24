@@ -33,3 +33,33 @@ def test_weak_or_duplicate_registration_rejected(api, user):
 
 def test_me_requires_auth(api):
     assert api.get("/api/auth/me/").status_code == 401
+
+
+def test_sign_up_is_rate_limited_per_client(api, settings):
+    settings.REST_FRAMEWORK = {
+        **settings.REST_FRAMEWORK,
+        "DEFAULT_THROTTLE_RATES": {
+            **settings.REST_FRAMEWORK["DEFAULT_THROTTLE_RATES"],
+            "register": "2/hour",
+        },
+    }
+    from rest_framework.throttling import ScopedRateThrottle
+
+    ScopedRateThrottle.THROTTLE_RATES = settings.REST_FRAMEWORK["DEFAULT_THROTTLE_RATES"]
+    try:
+        codes = [
+            api.post(
+                "/api/auth/register/",
+                {
+                    "username": f"spam{i}",
+                    "email": f"spam{i}@example.com",
+                    "password": "S3cure-pass!x",
+                },
+            ).status_code
+            for i in range(3)
+        ]
+    finally:
+        from rest_framework.settings import api_settings
+
+        ScopedRateThrottle.THROTTLE_RATES = api_settings.DEFAULT_THROTTLE_RATES
+    assert codes == [201, 201, 429]

@@ -1,0 +1,51 @@
+# Production overrides for one VPS (see docs/DEPLOY.md):
+#
+#   docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
+#
+# Caddy terminates HTTPS (automatic Let's Encrypt certificate for $DOMAIN) and is
+# the only service reachable from outside; everything else stays on the
+# internal Docker network. Configuration comes from ./.env.
+name: pc-builder
+
+services:
+  backend:
+    ports: !reset []
+    restart: unless-stopped
+    environment:
+      DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY:?Set DJANGO_SECRET_KEY in .env}
+      DJANGO_DEBUG: "0"
+
+  worker:
+    restart: unless-stopped
+  beat:
+    restart: unless-stopped
+  bot:
+    restart: unless-stopped
+  db:
+    restart: unless-stopped
+  redis:
+    restart: unless-stopped
+
+  frontend:
+    ports: !reset []
+    restart: unless-stopped
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"  # HTTP/3
+    environment:
+      DOMAIN: ${DOMAIN:?Set DOMAIN in .env}
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - frontend
+
+volumes:
+  caddy_data:
+  caddy_config:
