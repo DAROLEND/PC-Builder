@@ -2,6 +2,7 @@ from django.conf import settings
 from django.contrib import admin
 from django.http import JsonResponse
 from django.urls import include, path, re_path
+from django.views.generic import RedirectView
 from django.views.static import serve
 from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
 from rest_framework.routers import DefaultRouter
@@ -33,6 +34,8 @@ def health(request):
 
 
 urlpatterns = [
+    # The React app is served separately; someone opening the API host sees the docs.
+    path("", RedirectView.as_view(pattern_name="swagger-ui")),
     path("admin/", admin.site.urls),
     path("health/", health),
     path("api/", include(router.urls)),
