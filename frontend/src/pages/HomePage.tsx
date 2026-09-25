@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 
-import { useBuild, useBuilds } from "../api/hooks";
+import { useBuild, useBuilds, useComponents } from "../api/hooks";
 import type { CategoryKind } from "../api/types";
 import { CategoryIcon, CheckIcon, SparkIcon } from "../components/icons";
 import { PartImage } from "../components/PartMedia";
@@ -79,6 +79,8 @@ export function HomePage() {
   const { t } = useI18n();
   const money = useMoney();
   const builds = useBuilds({ is_public: true, ordering: "total_price", page_size: 3 });
+  // Only the count is needed: the same list the catalog shows, one item per page.
+  const parts = useComponents({ page_size: 1 });
 
   return (
     <div className="home">
@@ -106,7 +108,7 @@ export function HomePage() {
             </div>
             <div>
               <dt>{t("home.statParts")}</dt>
-              <dd>65</dd>
+              <dd>{parts.data?.count ?? "—"}</dd>
             </div>
             <div>
               <dt>{t("home.statSource")}</dt>
