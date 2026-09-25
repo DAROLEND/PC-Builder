@@ -150,8 +150,15 @@ STATIC_URL = "static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 MEDIA_URL = "/media/"
 MEDIA_ROOT = Path(os.environ.get("MEDIA_ROOT", BASE_DIR / "media"))
+# "db" keeps mirrored photos in PostgreSQL (catalog.StoredFile) for hosts whose
+# disk is wiped on every deploy, such as Render's free plan.
+MEDIA_STORAGE = os.environ.get("MEDIA_STORAGE", "filesystem")
 STORAGES = {
-    "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
+    "default": {
+        "BACKEND": "apps.catalog.db_storage.DatabaseStorage"
+        if MEDIA_STORAGE == "db"
+        else "django.core.files.storage.FileSystemStorage"
+    },
     "staticfiles": {"BACKEND": "whitenoise.storage.CompressedStaticFilesStorage"},
 }
 

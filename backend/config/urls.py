@@ -10,6 +10,7 @@ from rest_framework.routers import DefaultRouter
 from apps.advisor.views import AdvisorView
 from apps.alerts.views import TelegramLinkView, TelegramView, WatchViewSet
 from apps.builds.views import BuildViewSet, CommentViewSet, CompatibilityCheckView
+from apps.catalog.db_storage import serve_stored_file
 from apps.catalog.views import (
     CategoryViewSet,
     ComponentViewSet,
@@ -54,11 +55,14 @@ urlpatterns = [
 
 # Mirrored product photos. Served by Django here for simplicity: files are small
 # (WebP thumbnails) and immutable. At scale they would go to S3 + a CDN.
-urlpatterns += [
-    re_path(
-        r"^media/(?P<path>.*)$",
-        serve,
-        {"document_root": settings.MEDIA_ROOT},
-        name="media",
-    ),
-]
+if settings.MEDIA_STORAGE == "db":
+    urlpatterns += [re_path(r"^media/(?P<path>.+)$", serve_stored_file, name="media")]
+else:
+    urlpatterns += [
+        re_path(
+            r"^media/(?P<path>.*)$",
+            serve,
+            {"document_root": settings.MEDIA_ROOT},
+            name="media",
+        ),
+    ]

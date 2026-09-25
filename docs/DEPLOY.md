@@ -130,16 +130,25 @@ API, and a Key Value (Redis) instance for the cache and throttles.
    uses the rule-based planner). The first deploy migrates and loads the demo
    catalog.
 3. If Render assigned the API another hostname (the name was taken), update
-   the `/api/*` rewrite destination and `FRONTEND_URL` in `render.yaml` and push.
-4. Optional: set the repository variable `DEMO_API_URL` to the API URL. The
+   the `/api/*` and `/media/*` rewrite destinations and `FRONTEND_URL` in
+   `render.yaml` and push.
+4. **Market data** (products, prices, photos, price history): add the same URI
+   as the repository secret `DATABASE_URL` (Settings → Secrets and variables →
+   Actions). The *Market data* workflow plays the Celery worker's role and
+   writes straight into the database:
+   - first time: Actions → Market data → Run workflow with `import_pages` = 3
+     (about 650 parts; 1–2 hours, requests to one host are spaced by 2 s);
+   - then every night it refreshes prices, photos and badges by itself.
+5. Optional: set the repository variable `DEMO_API_URL` to the API URL. The
    *Keep demo alive* workflow then queries it daily; free Supabase projects
    need that, or they pause after a week without activity.
 
 Free-plan limits: the API sleeps after 15 idle minutes (the first request then
 takes up to a minute); background workers are paid, so Celery tasks run inline
 (`CELERY_TASK_ALWAYS_EAGER=1`), the NBU rate is refreshed on every start, and
-the Telegram bot does not run. The container disk is ephemeral, so uploaded
-media do not survive a restart.
+the Telegram bot does not run. The container disk is wiped on every deploy, so
+photos are stored in PostgreSQL (`MEDIA_STORAGE=db`, ~84 MB for 650 parts) and
+the API serves them with a 30-day cache; the static site proxies `/media/*`.
 
 ## What the configuration does
 

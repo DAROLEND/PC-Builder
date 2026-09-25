@@ -344,3 +344,20 @@ class ProductImage(models.Model):
 
     def __str__(self) -> str:
         return f"{self.component_id} #{self.position}"
+
+
+class StoredFile(models.Model):
+    """File content kept in PostgreSQL, used by ``DatabaseStorage``.
+
+    For hosts whose disk is wiped on every deploy (Render's free plan): the
+    mirrored product photos are small WebP files (~84 MB for ~650 parts), so
+    the database that already survives deploys holds them too.
+    """
+
+    name = models.CharField(max_length=255, unique=True)
+    content = models.BinaryField()
+    size = models.PositiveIntegerField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self) -> str:
+        return self.name
