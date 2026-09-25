@@ -4,6 +4,7 @@ from django.core.management.base import BaseCommand
 from apps.catalog.integrations import IntegrationError
 from apps.catalog.market import FETCH_DISABLED, Fetcher, fetching_enabled
 from apps.catalog.market_service import listings_due, refresh_listing
+from apps.catalog.market_stats import update_market_stats
 from apps.catalog.models import ExchangeRate
 from apps.catalog.tasks import refresh_market_listings, update_exchange_rate
 
@@ -41,7 +42,12 @@ class Command(BaseCommand):
                 self.style.WARNING("No USD/UAH rate yet: UAH prices will not be applied.")
             )
         listings = listings_due(stale_hours=0 if options["all"] else None)[: options["limit"]]
+        refreshed = 0
         for listing in listings:
             status = refresh_listing(listing, fetcher, rate)
             price = f"{listing.low_price} {listing.currency}" if listing.low_price else "—"
             self.stdout.write(f"{status:9} {listing.component!s:50.50} {price}")
+            refreshed += 1
+        if refreshed:
+            # Badges and popularity ranks, as the Celery task does after a refresh.
+            update_market_stats()
