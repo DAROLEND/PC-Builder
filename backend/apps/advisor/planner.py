@@ -31,7 +31,7 @@ from apps.builds import compatibility as c
 from apps.catalog.compat_query import compatible_q
 from apps.catalog.models import Component
 
-from .tools import to_part
+from .tools import BLOCKING_WARNINGS, to_part
 
 USE_CASES = ("gaming", "workstation", "streaming", "office")
 
@@ -67,7 +67,6 @@ UPGRADE_PRIORITY = {
 PICK_ORDER = ["cpu", "motherboard", "ram", "gpu", "cooler", "storage", "case", "psu"]
 PERFORMANCE_KINDS = {"cpu", "gpu", "ram"}
 SUFFICIENCY_KINDS = {"motherboard", "cooler", "case", "psu"}
-BLOCKING_WARNINGS = {"COOLER_UNDERRATED", "PSU_LOW_HEADROOM", "PSU_BELOW_GPU_RECOMMENDATION"}
 
 
 @dataclass

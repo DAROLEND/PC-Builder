@@ -13,6 +13,20 @@ from apps.builds import compatibility
 from apps.catalog.compat_query import compatible_q
 from apps.catalog.models import Component
 
+# Warnings a person may accept in the configurator, but an advisor must never
+# recommend: the build works on paper and disappoints in use. A cooler rated
+# between the CPU's TDP and its real load (a 9950X3D is "170 W" on the box and
+# draws 230 W) throttles under every long game or render.
+BLOCKING_WARNINGS = frozenset(
+    {
+        "COOLER_UNDERRATED",
+        "COOLER_LOW_HEADROOM",
+        "COOLER_RATING_UNKNOWN",
+        "PSU_LOW_HEADROOM",
+        "PSU_BELOW_GPU_RECOMMENDATION",
+    }
+)
+
 # Spec keys worth showing to the model when it browses the catalog.
 KEY_SPECS = {
     "cpu": ["socket", "cores", "threads", "boost_clock_ghz", "tdp_w", "integrated_graphics"],
@@ -41,12 +55,16 @@ def to_part(component: Component) -> compatibility.Part:
 
 
 def describe(component: Component) -> dict[str, Any]:
+    specs = {k: component.specs[k] for k in KEY_SPECS[component.kind] if k in component.specs}
+    if component.kind == "cpu":
+        # What the cooler has to handle; the box TDP understates it.
+        specs["load_power_w"] = compatibility.cpu_load_power(to_part(component))
     return {
         "id": component.id,
         "name": str(component),
         "category": component.kind,
         "price_usd": str(component.price),
-        "specs": {k: component.specs[k] for k in KEY_SPECS[component.kind] if k in component.specs},
+        "specs": specs,
     }
 
 
