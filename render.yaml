@@ -1,6 +1,6 @@
-# Free demo on Render + Supabase: see docs/DEPLOY.md, "Free hosting".
+# Free demo on Render + a hosted Postgres (Neon): see docs/DEPLOY.md, "Free hosting".
 # Render: New → Blueprint → pick this repo. It asks for the values marked
-# `sync: false` (DATABASE_URL is the Supabase *session pooler* URI).
+# `sync: false` (DATABASE_URL is the Neon URI without connection pooling).
 #
 # Free-plan trade-offs: background workers are paid, so there is no Celery
 # worker/beat and no Telegram bot. Tasks run inline (CELERY_TASK_ALWAYS_EAGER),
@@ -36,7 +36,7 @@ services:
       - key: DJANGO_ALLOWED_HOSTS
         value: localhost
       - key: FRONTEND_URL
-        value: https://pcbuilder.onrender.com
+        value: https://pcbuilder-ife5.onrender.com
       - key: RUN_MIGRATIONS
         value: "1"
       - key: SEED_DEMO_DATA

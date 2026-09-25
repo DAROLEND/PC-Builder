@@ -113,25 +113,27 @@ docker compose logs -f caddy            # certificates, HTTPS
 | 403 CSRF on the admin login | `DJANGO_CSRF_TRUSTED_ORIGINS` must be `https://<domain>` |
 | No certificate | the A record does not point at the server yet, or port 80/443 is closed |
 
-## Free hosting: Render + Supabase
+## Free hosting: Render + Neon
 
-Good enough for a portfolio demo. `render.yaml` describes the services.
+Good enough for a portfolio demo. `render.yaml` describes the services: the
+API (Docker), the React build as a static site that proxies `/api/*` to the
+API, and a Key Value (Redis) instance for the cache and throttles.
 
-1. **Supabase:** create a project in the region **Central EU (Frankfurt)**.
-   Open **Connect** and copy the **Session pooler** URI, then append
-   `?sslmode=require`:
-   `postgresql://postgres.<ref>:<password>@aws-0-eu-central-1.pooler.supabase.com:5432/postgres?sslmode=require`.
-   The direct connection is IPv6-only and not reachable from Render. If the
-   password contains `@ # / :`, percent-encode those characters.
+1. **Database:** create a [Neon](https://neon.tech) project in
+   **AWS Europe Central 1 (Frankfurt)**, Postgres 17. Under **Connect**, turn
+   **Connection pooling off** (the pooler runs PgBouncer in transaction mode)
+   and copy the URI: `postgresql://<user>:<password>@ep-….eu-central-1.aws.neon.tech/neondb?sslmode=require`.
+   Supabase works too: use its *Session pooler* URI, since the direct
+   connection is IPv6-only and not reachable from Render.
 2. **Render:** New → Blueprint → this repository. Paste the URI into
    `DATABASE_URL`; `ANTHROPIC_API_KEY` is optional (without it the advisor
    uses the rule-based planner). The first deploy migrates and loads the demo
    catalog.
 3. If Render assigned the API another hostname (the name was taken), update
    the `/api/*` rewrite destination and `FRONTEND_URL` in `render.yaml` and push.
-4. Set the repository variable `DEMO_API_URL` to the API URL: the
-   *Keep demo alive* workflow then queries it daily, so Supabase does not
-   pause the project after a week of inactivity.
+4. Optional: set the repository variable `DEMO_API_URL` to the API URL. The
+   *Keep demo alive* workflow then queries it daily; free Supabase projects
+   need that, or they pause after a week without activity.
 
 Free-plan limits: the API sleeps after 15 idle minutes (the first request then
 takes up to a minute); background workers are paid, so Celery tasks run inline
