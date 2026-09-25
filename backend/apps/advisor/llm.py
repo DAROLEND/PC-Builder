@@ -44,6 +44,11 @@ one memory kit and one storage drive; add a CPU cooler unless the CPU is a
 low-TDP part, and a graphics card unless the use case is office work and the
 CPU has integrated graphics.
 
+The cooler's `tdp_rating_w` must cover the CPU's `load_power_w` (what it
+draws under sustained load), not just its box TDP; otherwise the CPU throttles
+in every long game or render. Warnings about cooling or PSU headroom block a
+submission just like errors.
+
 Spend the budget where it matters for the stated use case (for gaming that
 is mostly the GPU) and don't overspend on parts that don't affect
 performance. Prices are in USD. The summary for the customer is 3–6
@@ -89,7 +94,8 @@ TOOL_DEFINITIONS: list[dict[str, Any]] = [
         "name": "submit_build",
         "description": (
             "Submit the final recommendation. It is rejected if the build has "
-            "compatibility errors, is incomplete, or is over budget; fix and resubmit."
+            "compatibility errors or cooling/PSU headroom warnings, is incomplete, or is "
+            "over budget; fix and resubmit."
         ),
         "input_schema": {
             "type": "object",
@@ -141,6 +147,9 @@ def _run_tool(
             return json.dumps(payload), False, None
 
         problems = [e["message"] for e in payload["errors"]]
+        problems += [
+            w["message"] for w in payload["warnings"] if w["code"] in tools.BLOCKING_WARNINGS
+        ]
         if report.missing:
             problems.append(f"Missing required parts: {', '.join(report.missing)}.")
         if total > budget * BUDGET_TOLERANCE:

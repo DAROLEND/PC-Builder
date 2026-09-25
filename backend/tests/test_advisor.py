@@ -6,7 +6,7 @@ import pytest
 
 from apps.advisor import llm
 from apps.advisor.planner import USE_CASES, plan_build
-from apps.advisor.tools import check_components
+from apps.advisor.tools import BLOCKING_WARNINGS, check_components, describe
 
 pytestmark = pytest.mark.django_db
 
@@ -20,6 +20,8 @@ def test_rule_based_plan_is_complete_compatible_and_within_budget(use_case, budg
     assert report.is_compatible, report.errors
     assert report.is_complete, report.missing
     assert total <= budget, plan.notes
+    # Works on paper is not enough: no cooler below the CPU's load, no tight PSU.
+    assert not [w.code for w in report.warnings if w.code in BLOCKING_WARNINGS]
 
 
 def test_infeasible_budget_is_reported_not_hidden():
@@ -128,6 +130,22 @@ def test_claude_loop_rejects_incompatible_submission_then_accepts(
     rejection = client.requests[2]["messages"][-1]["content"][0]
     assert rejection["is_error"] is True
     assert "socket" in rejection["content"]
+
+
+def test_claude_submission_with_a_weak_cooler_is_rejected(comp):
+    # AK400 (220 W) covers the Ryzen 9 9950X's 170 W TDP but not its 230 W PPT
+    # under load: a warning in the configurator, a rejection for the advisor.
+    ids = [comp("Ryzen 9 9950X").id, comp("AK400").id]
+    content, is_error, result = llm._run_tool(
+        "submit_build", {"component_ids": ids, "summary": "x"}, Decimal(3000)
+    )
+    assert is_error and result is None
+    assert "230 W" in content
+
+
+def test_model_sees_the_cpu_load_power_not_only_the_tdp(comp):
+    specs = describe(comp("Ryzen 9 9950X"))["specs"]
+    assert specs["tdp_w"] == 170 and specs["load_power_w"] == 230
 
 
 def test_claude_loop_rejects_over_budget(settings, comp):
