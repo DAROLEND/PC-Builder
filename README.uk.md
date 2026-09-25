@@ -4,7 +4,7 @@
 
 Це не CRUD, у ньому є предметна логіка: сокети, чипсети, DDR4/DDR5, форм-фактори, довжина відеокарти, висота кулера, потужність блока живлення. Правила виражені в коді на різних рівнях (рушій, серіалізатор, модель, обмеження в БД), і нижче пояснено, чому кожне правило стоїть саме там.
 
-[English](README.md) · **Живе демо:** _посилання після деплою_ · **API-документація:** `/api/docs/` · демо-акаунт `demo` / `demo12345`
+[English](README.md) · **[Живе демо](https://pcbuilder-ife5.onrender.com)** (безкоштовний хостинг: API може прокидатися до хвилини) · [API-документація](https://pcbuilder-api-8qs9.onrender.com/api/docs/) · демо-акаунт `demo` / `demo12345`
 
 ![Конфігуратор](docs/screenshots/configurator.png)
 
@@ -278,7 +278,7 @@ cd frontend && npm test && npm run typecheck && npm run lint
 
 ## Деплой
 
-Розгортання на VPS з автоматичним HTTPS (Caddy): **[docs/DEPLOY.md](docs/DEPLOY.md)** (англійською). Безкоштовне демо на Render + Supabase: `render.yaml` і розділ «Free hosting» там само (без фонових воркерів і Telegram-бота).
+Розгортання на VPS з автоматичним HTTPS (Caddy): **[docs/DEPLOY.md](docs/DEPLOY.md)** (англійською). Безкоштовне демо на Render + Neon: `render.yaml` і розділ «Free hosting» там само (без фонових воркерів і Telegram-бота).
 
 ## Як я використовував AI
 

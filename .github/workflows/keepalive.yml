@@ -1,4 +1,4 @@
-# Free Supabase projects pause after a week without database activity.
+# Free Supabase projects pause after a week without database activity (Neon does not).
 # One request a day wakes the Render API, which queries the database.
 # Set the repository variable DEMO_API_URL (Settings → Secrets and variables →
 # Actions → Variables), e.g. https://pcbuilder-api.onrender.com
