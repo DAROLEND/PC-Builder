@@ -33,7 +33,7 @@
 |---|---|
 | Backend | Python 3.13, Django 5.2, Django REST Framework, PostgreSQL 17 (JSONB + GIN, window functions), SimpleJWT, drf-spectacular (OpenAPI 3), django-filter |
 | Background work | Celery + Redis, Celery beat (exchange rate, market refresh, price alerts, order expiry) |
-| Integrations | Anthropic Claude API (tool use), Telegram Bot API (long polling or webhook), Stripe Checkout + webhooks, NBU exchange-rate API, market data from product pages (disabled by default, see [Market data](#market-data)) |
+| Integrations | Anthropic Claude API (tool use), Telegram Bot API (long polling or webhook), Stripe Checkout + webhooks, NBU exchange-rate API, market data from product pages (off by default, see [Live prices and photos](#live-prices-and-photos)) |
 | Frontend | React 19, TypeScript, Vite, TanStack Query, React Router, `openapi-fetch` with **types generated from the OpenAPI schema**, typed i18n |
 | Tests | pytest + pytest-django + factory_boy + responses (286 tests), Vitest + Testing Library (16), Playwright for manual end-to-end checks |
 | Infrastructure | Docker Compose (7 services), nginx, Caddy (HTTPS), GitHub Actions (lint, migrations, schema drift, tests, image build, stack smoke test) |
@@ -150,7 +150,14 @@ All rules live in [`backend/apps/builds/compatibility.py`](backend/apps/builds/c
 
 ## Live prices and photos
 
-Catalog prices do not need to be updated manually. Each item has a `MarketListing`—a link to the corresponding model on hotline.ua (or the store page). Celery Beat updates listings older than 20 hours every 30 minutes:
+Catalog prices are never edited by hand. Every part has a `MarketListing`, a link to the same model on hotline.ua (or a shop page), and every 30 minutes Celery beat refreshes listings older than 20 hours (on the free demo the nightly *Market data* workflow does it):
+
+- **Where the data comes from.** The schema.org `Product` markup sites publish for search engines (JSON-LD, falling back to microdata and OpenGraph) and the page state: price range across shops, offers, stock, rating, photos. No site-specific HTML is scraped, so a redesign breaks nothing, and no private shop APIs are used.
+- **Politeness.** robots.txt is checked per host (cached for a day), requests to one host are spaced out, the bot has an honest User-Agent and only visits product pages.
+- **Guarding against garbage.** The title on the page is matched against ours by model tokens (`9800x3d`, `b650m`, `rm850x`); if a URL starts showing another product the listing becomes `mismatch` and the price stays. "No photo" placeholders are dropped, prices in unknown currencies are not converted.
+- **Which price is shown.** The typical one: the **median** of new-condition shop offers, with the min–max range next to it. The cheapest offer alone often belongs to a shop without stock. In-stock offers win; if none is in stock, the last known price stays.
+- **Price history** comes from hotline's own chart (daily average, min and max for the last year); every refresh adds the new days, and `manage.py sync_price_history` backfills the whole catalog. If that source changes, nothing breaks: we record one point a day ourselves.
+- **Photos** are mirrored once as WebP (360 / 1000 px). Specs are mapped per category and validated; unknown values are dropped, so a part stays "catalog only" rather than getting a guessed spec. Parts sold by fewer than 3 shops are hidden from browsing and come back when supply returns.
 
 ## Telegram price alerts
 
