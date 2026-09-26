@@ -3,10 +3,12 @@
 # `sync: false` (DATABASE_URL is the Neon URI without connection pooling).
 #
 # Free-plan trade-offs: background workers are paid, so there is no Celery
-# worker/beat and no Telegram bot. Tasks run inline (CELERY_TASK_ALWAYS_EAGER),
-# and the NBU rate is refreshed on every start (in the background). Market data (import, prices,
-# photos, price history) comes from the GitHub Actions workflow "Market data",
-# which writes into the same database; photos live in PostgreSQL
+# worker/beat and no polling Telegram bot: Telegram delivers updates to the
+# API's webhook instead (TELEGRAM_WEBHOOK=1), and the "Price alerts" workflow
+# sends the alerts. Tasks run inline (CELERY_TASK_ALWAYS_EAGER), and the NBU
+# rate is refreshed on every start (in the background). Market data (import,
+# prices, photos, price history) comes from the GitHub Actions workflow
+# "Market data", which writes into the same database; photos live in PostgreSQL
 # (MEDIA_STORAGE=db) because the service's disk is wiped on every deploy.
 # The API sleeps after 15 idle minutes and the first request then takes up to a
 # minute; the "Keep demo alive" workflow pings it every 10 minutes to prevent that.
@@ -59,6 +61,11 @@ services:
         value: "50"
       - key: PAYMENT_PROVIDER
         value: fake
+      # From @BotFather; leave empty to run without the bot.
+      - key: TELEGRAM_BOT_TOKEN
+        sync: false
+      - key: TELEGRAM_WEBHOOK
+        value: "1"
 
   - type: web
     name: pcbuilder

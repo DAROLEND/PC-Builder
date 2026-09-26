@@ -26,4 +26,10 @@ if [ "${RUN_MIGRATIONS:-0}" = "1" ]; then
   fi
 fi
 
+# The bot without a polling process: tell Telegram where to deliver updates.
+# Idempotent, so it runs on every start and follows a changed hostname.
+if [ "${TELEGRAM_WEBHOOK:-0}" = "1" ]; then
+  python manage.py set_telegram_webhook || echo "Telegram webhook not set." &
+fi
+
 exec "$@"
