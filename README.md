@@ -150,7 +150,7 @@ All rules live in [`backend/apps/builds/compatibility.py`](backend/apps/builds/c
 
 ## Market data
 
-> **Collection from third-party sites is off by default** (`MARKET_FETCH_ENABLED=0`). The integration was built against hotline.ua, whose [user agreement](https://hotline.ua/ua/page/user_agreement/) forbids automated collection without the administration's written permission (p. 6.4) and copying of site materials (p. 2.4); robots.txt is not a permission. The code stays as an example of working with market data and runs only with such permission or against a source whose terms allow it. The public demo runs on the curated catalog in the repository.
+> **Collection from third-party sites is off by default** (`MARKET_FETCH_ENABLED=0`). The integration was built against hotline.ua, whose [user agreement](https://hotline.ua/ua/page/user_agreement/) forbids automated collection without the administration's written permission (p. 6.4) and copying of site materials (p. 2.4); robots.txt is not a permission. The live demo collects data with the hotline.ua administration's permission; any other deployment needs its own permission or a source whose terms allow collection.
 
 How it works when enabled: prices, offers and photos come from schema.org `Product` markup and the page state, specs are mapped per category and validated (unknown values are dropped: a part stays "catalog only" rather than getting a guessed spec), photos are mirrored once as WebP (360 / 1000 px), requests respect robots.txt with per-host throttling and an honest User-Agent, and a title check marks a listing as `mismatch` if its URL starts showing a different product. Parts sold by fewer than 3 shops are hidden from browsing and reappear when supply returns.
 
