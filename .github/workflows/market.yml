@@ -34,6 +34,9 @@ jobs:
       DJANGO_SECRET_KEY: market-data-job
       MEDIA_STORAGE: db
       MARKET_FETCH_ENABLED: "1"
+      # Price alerts right after the refresh (skipped without the token).
+      TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+      FRONTEND_URL: https://pcbuilder-ife5.onrender.com
       CELERY_TASK_ALWAYS_EAGER: "1"
       PYTHONUNBUFFERED: "1"
     steps:

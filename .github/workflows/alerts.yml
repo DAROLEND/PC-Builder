@@ -1,0 +1,59 @@
+# Price alerts for a deployment without Celery beat (Render's free plan): checks
+# the watches every hour and sends the Telegram messages. The "Market data"
+# workflow already checks them after the nightly price refresh; this run is what
+# delivers alerts held back by quiet hours (22:00–08:00 Kyiv) in the morning.
+#
+# Setup: repository secrets DATABASE_URL (same URI the API uses) and
+# TELEGRAM_BOT_TOKEN. Each run wakes the Neon database for a few minutes.
+name: Price alerts
+
+on:
+  schedule:
+    - cron: "5 * * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: price-alerts
+  cancel-in-progress: false
+
+jobs:
+  alerts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: backend
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+      FRONTEND_URL: https://pcbuilder-ife5.onrender.com
+      DB_CONN_MAX_AGE: "0"
+      DJANGO_SECRET_KEY: price-alerts-job
+      CELERY_TASK_ALWAYS_EAGER: "1"
+      PYTHONUNBUFFERED: "1"
+    steps:
+      - name: Check configuration
+        id: config
+        working-directory: .
+        run: |
+          if [ -z "$DATABASE_URL" ] || [ -z "$TELEGRAM_BOT_TOKEN" ]; then
+            echo "::notice::Secrets DATABASE_URL and TELEGRAM_BOT_TOKEN are needed; nothing to do."
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "enabled=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: actions/checkout@v4
+        if: steps.config.outputs.enabled == 'true'
+      - uses: actions/setup-python@v5
+        if: steps.config.outputs.enabled == 'true'
+        with:
+          python-version: "3.13"
+          cache: pip
+          cache-dependency-path: backend/requirements*.txt
+      - if: steps.config.outputs.enabled == 'true'
+        run: pip install -r requirements.txt
+
+      - name: Check watches and send alerts
+        if: steps.config.outputs.enabled == 'true'
+        run: python manage.py check_price_watches
