@@ -139,13 +139,17 @@ API, and a Key Value (Redis) instance for the cache and throttles.
    - first time: Actions → Market data → Run workflow with `import_pages` = 3
      (about 650 parts; 1–2 hours, requests to one host are spaced by 2 s);
    - then every night it refreshes prices, photos and badges by itself.
-5. Optional: set the repository variable `DEMO_API_URL` to the API URL. The
-   *Keep demo alive* workflow then queries it daily; free Supabase projects
-   need that, or they pause after a week without activity.
+5. **Keep it awake:** the *Keep demo alive* workflow pings the API's
+   `/health/` every 10 minutes, so visitors don't wait for a cold start. If
+   your API has another hostname, set the repository variable `DEMO_API_URL`
+   (Actions → Variables). GitHub may delay scheduled runs by a few minutes; an
+   external monitor (cron-job.org, UptimeRobot) on the same URL is stricter.
 
-Free-plan limits: the API sleeps after 15 idle minutes (the first request then
-takes up to a minute); background workers are paid, so Celery tasks run inline
-(`CELERY_TASK_ALWAYS_EAGER=1`), the NBU rate is refreshed on every start, and
+Free-plan limits: the API sleeps after 15 idle minutes without the keep-alive
+ping (the first request then takes up to a minute, while the static frontend
+loads at once and waits for data); background workers are paid, so Celery
+tasks run inline (`CELERY_TASK_ALWAYS_EAGER=1`), seeding and the NBU rate run
+next to the server on every start rather than before it, and
 the Telegram bot does not run. The container disk is wiped on every deploy, so
 photos are stored in PostgreSQL (`MEDIA_STORAGE=db`, ~84 MB for 650 parts) and
 the API serves them with a 30-day cache; the static site proxies `/media/*`.

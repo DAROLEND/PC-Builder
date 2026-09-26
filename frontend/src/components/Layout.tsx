@@ -1,3 +1,4 @@
+import { useIsFetching } from "@tanstack/react-query";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { NavLink, Outlet, useLocation } from "react-router-dom";
 
@@ -12,6 +13,34 @@ const NAV: [string, MessageKey][] = [
   ["/advisor", "nav.advisor"],
   ["/stats", "nav.stats"],
 ];
+
+/**
+ * The free host puts the API to sleep when idle, and the first request then
+ * takes up to a minute. If data has been loading for a few seconds, say why
+ * the page is empty instead of leaving the visitor with skeletons.
+ */
+function WakeNotice() {
+  const { t } = useI18n();
+  const fetching = useIsFetching() > 0;
+  const [slow, setSlow] = useState(false);
+
+  useEffect(() => {
+    if (!fetching) return;
+    const timer = setTimeout(() => setSlow(true), 5000);
+    return () => {
+      clearTimeout(timer);
+      setSlow(false);
+    };
+  }, [fetching]);
+
+  if (!fetching || !slow) return null;
+  return (
+    <div className="wake-notice" role="status">
+      <span className="wake-dot" aria-hidden="true" />
+      {t("common.waking")}
+    </div>
+  );
+}
 
 /**
  * Floating, centred header. The highlighted "pill" is a single element that
@@ -117,6 +146,7 @@ export function Layout() {
         </div>
       </header>
 
+      <WakeNotice />
       {/* key → the enter animation replays on every navigation */}
       <main className="container page" key={location.pathname}>
         <Outlet />

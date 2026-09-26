@@ -2,7 +2,9 @@
 
 **A PC configurator that actually checks whether the parts fit together.** Pick a CPU, a board, memory, a graphics card, a cooler, a PSU and a case, and every choice is checked against ~30 real compatibility rules: sockets and chipsets, DDR4/DDR5, slot counts, GPU length and cooler height against the case, cooling capacity under load, power supply headroom. Builds can be saved, shared, commented on and ordered; an AI advisor assembles a complete build for a budget through the app's own API; a Telegram bot sends price alerts.
 
-[Українською](README.uk.md) · **[Live demo](https://pcbuilder-ife5.onrender.com)** (free hosting: the API may take up to a minute to wake up) · [API docs](https://pcbuilder-api-8qs9.onrender.com/api/docs/) · demo account `demo` / `demo12345`
+**Live site: <https://pcbuilder-ife5.onrender.com>** · demo account `demo` / `demo12345`
+
+[Українською](README.uk.md) · [API docs](https://pcbuilder-api-8qs9.onrender.com/api/docs/)
 
 ![Configurator with a live compatibility report](docs/screenshots/configurator.png)
 
@@ -171,7 +173,3 @@ cd frontend && npm test && npm run typecheck && npm run lint
 ```
 
 Covered: every compatibility rule; permissions (someone else's private build is a 404, not a 403); database constraints; SQL query counts; aggregations on data where a naive query is wrong; the order state machine and races; the Stripe webhook; external APIs through `responses` (no network); the Claude loop through a scripted fake client; the Telegram bot and alert check; the page-state parser against malicious input.
-
-## How I used AI
-
-This project was built with Claude Code. **[docs/AI_USAGE.md](docs/AI_USAGE.md)** documents what was delegated, where the AI was wrong, how those mistakes were caught (tests, generated types, screenshots, running against real data) and what changed as a result.

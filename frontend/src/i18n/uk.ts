@@ -47,6 +47,7 @@ export const uk = {
   "footer.prices": "Актуальні ціни: hotline.ua, оновлюються автоматично",
 
   "common.loading": "Завантаження",
+  "common.waking": "Сервер прокидається після простою (безкоштовний хостинг). Це займає до хвилини, дані з'являться самі.",
   "common.search": "Пошук…",
   "common.total": "Разом",
   "common.remove": "Прибрати",
