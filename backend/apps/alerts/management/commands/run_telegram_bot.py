@@ -4,22 +4,9 @@ import time
 from django.core.management.base import BaseCommand, CommandError
 
 from apps.alerts import telegram
-from apps.alerts.bot import handle_update
+from apps.alerts.bot import COMMANDS, handle_update
 
 logger = logging.getLogger(__name__)
-
-COMMANDS = {
-    "uk": [
-        {"command": "list", "description": "За чим я стежу"},
-        {"command": "stop", "description": "Вимкнути сповіщення"},
-        {"command": "on", "description": "Увімкнути сповіщення"},
-    ],
-    "en": [
-        {"command": "list", "description": "What I watch"},
-        {"command": "stop", "description": "Pause alerts"},
-        {"command": "on", "description": "Resume alerts"},
-    ],
-}
 
 
 class Command(BaseCommand):
@@ -41,7 +28,7 @@ class Command(BaseCommand):
             while True:
                 time.sleep(3600)
         # Polling and a webhook are mutually exclusive in the Bot API.
-        telegram.call("deleteWebhook")
+        telegram.call("deleteWebhook")  # undo set_telegram_webhook
         telegram.call("setMyCommands", commands=COMMANDS["en"])
         telegram.call("setMyCommands", commands=COMMANDS["uk"], language_code="uk")
         self.stdout.write(f"@{telegram.bot_username()} is listening. Ctrl+C to stop.")
