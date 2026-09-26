@@ -20,7 +20,7 @@
 | Фонові задачі | Celery + Redis, Celery beat (курс НБУ, синхронізація цін, скасування неоплачених замовлень, e-mail-нотифікації) |
 | Інтеграції | Anthropic Claude API (tool use), Telegram Bot API, Stripe Checkout + вебхуки, API НБУ (курс USD→UAH), ринкові дані зі сторінок товарів (за замовчуванням вимкнено, див. «Живі ціни й фото») |
 | Frontend | React 19, TypeScript, Vite, TanStack Query, React Router, `openapi-fetch` з **типами, згенерованими з OpenAPI-схеми**, власна типізована i18n (UA/EN) |
-| Тести | pytest + pytest-django + factory_boy + responses (275 тестів), Vitest + Testing Library (16 тестів) |
+| Тести | pytest + pytest-django + factory_boy + responses (286 тестів), Vitest + Testing Library (16 тестів) |
 | Інфраструктура | Docker Compose (7 сервісів, одна команда), nginx, Caddy (HTTPS), GitHub Actions (лінт, міграції, дрейф схеми, тести, збірка образів, smoke-тест) |
 
 ## Швидкий старт
@@ -270,7 +270,7 @@ POST /api/advisor/
 ## Тести та якість
 
 ```bash
-cd backend && pytest --cov        # 275 тестів, потрібен PostgreSQL
+cd backend && pytest --cov        # 286 тестів, потрібен PostgreSQL
 cd frontend && npm test && npm run typecheck && npm run lint
 ```
 
