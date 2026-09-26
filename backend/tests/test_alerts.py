@@ -1,5 +1,6 @@
 """Price watches, the Telegram link flow, the bot and the alert check."""
 
+import io
 import json
 import os
 from datetime import datetime, timedelta
@@ -332,6 +333,29 @@ def test_webhook_acknowledges_an_update_that_fails(api, webhook, db):
     # No sendMessage mock: the reply fails, but Telegram must not retry it forever.
     resp = api.post("/api/telegram/webhook/", update("/list"), format="json", **webhook)
     assert resp.status_code == 200
+
+
+@responses.activate
+def test_set_webhook_registers_the_url_and_secret(settings):
+    from django.core.management import call_command
+
+    from apps.alerts.telegram import webhook_secret
+
+    settings.TELEGRAM_WEBHOOK = True
+    for method in ("setWebhook", "setMyCommands"):
+        responses.post(f"{API}/{method}", json={"ok": True, "result": True})
+    call_command("set_telegram_webhook", url="https://api.example/", stdout=io.StringIO())
+    body = json.loads(responses.calls[0].request.body)
+    assert body["url"] == "https://api.example/api/telegram/webhook/"
+    assert body["secret_token"] == webhook_secret()
+
+
+def test_set_webhook_needs_https(settings):
+    from django.core.management import CommandError, call_command
+
+    settings.TELEGRAM_WEBHOOK = True
+    with pytest.raises(CommandError):
+        call_command("set_telegram_webhook", url="http://localhost:8000")
 
 
 # --- Local .env ---------------------------------------------------------------------

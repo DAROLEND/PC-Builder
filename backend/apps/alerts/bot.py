@@ -74,6 +74,21 @@ TEXTS = {
 }
 
 
+# The bot's command menu, per the user's Telegram language.
+COMMANDS = {
+    "uk": [
+        {"command": "list", "description": "За чим я стежу"},
+        {"command": "stop", "description": "Вимкнути сповіщення"},
+        {"command": "on", "description": "Увімкнути сповіщення"},
+    ],
+    "en": [
+        {"command": "list", "description": "What I watch"},
+        {"command": "stop", "description": "Pause alerts"},
+        {"command": "on", "description": "Resume alerts"},
+    ],
+}
+
+
 def language_of(user_language: str | None) -> str:
     """Telegram's language_code of the sender -> our message language."""
     return "uk" if (user_language or "").lower().startswith(("uk", "ru")) else "en"
