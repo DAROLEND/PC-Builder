@@ -50,9 +50,9 @@ Fill in at least:
 
 Optional: `ANTHROPIC_API_KEY` (AI advisor through Claude; `ADVISOR_DAILY_LLM_LIMIT`
 caps the calls per day), `TELEGRAM_BOT_TOKEN` (price alerts). Keep
-`MARKET_FETCH_ENABLED=0`: collecting data from hotline.ua needs the
-administration's written permission (user agreement, p. 6.4). The public demo
-runs on the curated catalog that ships with the repository.
+`MARKET_FETCH_ENABLED=0` unless you have the hotline.ua administration's
+written permission (user agreement, p. 6.4); without it the site runs on the
+curated catalog that ships with the repository.
 
 `.env` holds secrets: it is in `.gitignore`, never commit it.
 
