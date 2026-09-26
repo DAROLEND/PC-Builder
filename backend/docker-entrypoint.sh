@@ -5,13 +5,16 @@ set -e
 if [ "${RUN_MIGRATIONS:-0}" = "1" ]; then
   python manage.py migrate --noinput
   if [ "${SEED_DEMO_DATA:-0}" = "1" ]; then
-    python manage.py seed_catalog
-    # Also on every start: a free host without Celery beat still gets today's rate.
-    python manage.py update_exchange_rate
-    # Without a worker (CELERY_TASK_ALWAYS_EAGER=1, e.g. Render's free plan) these
-    # would run inline for hours and the server would never start listening;
-    # there the GitHub Actions "Market data" workflow does this job.
-    if [ "${CELERY_TASK_ALWAYS_EAGER:-0}" != "1" ]; then
+    if [ "${CELERY_TASK_ALWAYS_EAGER:-0}" = "1" ]; then
+      # No worker (e.g. Render's free plan): every wake-up from sleep is a fresh
+      # start, so seeding and the NBU rate run next to the server instead of
+      # before it; both are idempotent and the site answers from the database
+      # meanwhile. Prices, photos and imports come from the GitHub Actions
+      # "Market data" workflow (inline here they would take hours).
+      (python manage.py seed_catalog && python manage.py update_exchange_rate) &
+    else
+      python manage.py seed_catalog
+      python manage.py update_exchange_rate
       # Fresh prices and photos are fetched by the Celery worker in the
       # background, so the site is usable immediately.
       python manage.py refresh_market --async || echo "Broker not ready, beat will refresh later."

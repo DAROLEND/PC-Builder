@@ -4,7 +4,9 @@
 
 Це не CRUD, у ньому є предметна логіка: сокети, чипсети, DDR4/DDR5, форм-фактори, довжина відеокарти, висота кулера, потужність блока живлення. Правила виражені в коді на різних рівнях (рушій, серіалізатор, модель, обмеження в БД), і нижче пояснено, чому кожне правило стоїть саме там.
 
-[English](README.md) · **[Живе демо](https://pcbuilder-ife5.onrender.com)** (безкоштовний хостинг: API може прокидатися до хвилини) · [API-документація](https://pcbuilder-api-8qs9.onrender.com/api/docs/) · демо-акаунт `demo` / `demo12345`
+**Живий сайт: <https://pcbuilder-ife5.onrender.com>** · демо-акаунт `demo` / `demo12345`
+
+[English](README.md) · [API-документація](https://pcbuilder-api-8qs9.onrender.com/api/docs/)
 
 ![Конфігуратор](docs/screenshots/configurator.png)
 

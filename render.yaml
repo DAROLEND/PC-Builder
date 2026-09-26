@@ -4,11 +4,12 @@
 #
 # Free-plan trade-offs: background workers are paid, so there is no Celery
 # worker/beat and no Telegram bot. Tasks run inline (CELERY_TASK_ALWAYS_EAGER),
-# and the NBU rate is refreshed on every start. Market data (import, prices,
+# and the NBU rate is refreshed on every start (in the background). Market data (import, prices,
 # photos, price history) comes from the GitHub Actions workflow "Market data",
 # which writes into the same database; photos live in PostgreSQL
 # (MEDIA_STORAGE=db) because the service's disk is wiped on every deploy.
-# The API sleeps after 15 idle minutes; the first request then takes up to a minute.
+# The API sleeps after 15 idle minutes and the first request then takes up to a
+# minute; the "Keep demo alive" workflow pings it every 10 minutes to prevent that.
 services:
   - type: web
     name: pcbuilder-api
@@ -32,6 +33,10 @@ services:
         value: "1"
       - key: WEB_CONCURRENCY
         value: "2"
+      # Import Django once in the master and fork the workers: on the free
+      # plan's 0.1 CPU this roughly halves the time from wake-up to first answer.
+      - key: GUNICORN_CMD_ARGS
+        value: "--preload"
       - key: DJANGO_SECRET_KEY
         generateValue: true
       # The service's own *.onrender.com host is added automatically

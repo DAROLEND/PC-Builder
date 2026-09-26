@@ -45,6 +45,7 @@ export const en = {
   "footer.prices": "Live prices: hotline.ua, updated automatically",
 
   "common.loading": "Loading",
+  "common.waking": "The server is waking up after idling (free hosting). This takes up to a minute, the data will appear by itself.",
   "common.search": "Search…",
   "common.total": "Total",
   "common.remove": "Remove",

@@ -2,7 +2,9 @@
 
 **A PC configurator that actually checks whether the parts fit together.** Pick a CPU, a board, memory, a graphics card, a cooler, a PSU and a case, and every choice is checked against ~30 real compatibility rules: sockets and chipsets, DDR4/DDR5, slot counts, GPU length and cooler height against the case, cooling capacity under load, power supply headroom. Builds can be saved, shared, commented on and ordered; an AI advisor assembles a complete build for a budget through the app's own API; a Telegram bot sends price alerts.
 
-[Українською](README.uk.md) · **[Live demo](https://pcbuilder-ife5.onrender.com)** (free hosting: the API may take up to a minute to wake up) · [API docs](https://pcbuilder-api-8qs9.onrender.com/api/docs/) · demo account `demo` / `demo12345`
+**Live site: <https://pcbuilder-ife5.onrender.com>** · demo account `demo` / `demo12345`
+
+[Українською](README.uk.md) · [API docs](https://pcbuilder-api-8qs9.onrender.com/api/docs/)
 
 ![Configurator with a live compatibility report](docs/screenshots/configurator.png)
 
