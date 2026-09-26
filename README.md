@@ -35,7 +35,7 @@
 | Background work | Celery + Redis, Celery beat (exchange rate, market refresh, price alerts, order expiry) |
 | Integrations | Anthropic Claude API (tool use), Telegram Bot API (long polling or webhook), Stripe Checkout + webhooks, NBU exchange-rate API, market data from product pages (disabled by default, see [Market data](#market-data)) |
 | Frontend | React 19, TypeScript, Vite, TanStack Query, React Router, `openapi-fetch` with **types generated from the OpenAPI schema**, typed i18n |
-| Tests | pytest + pytest-django + factory_boy + responses (275 tests), Vitest + Testing Library (16), Playwright for manual end-to-end checks |
+| Tests | pytest + pytest-django + factory_boy + responses (286 tests), Vitest + Testing Library (16), Playwright for manual end-to-end checks |
 | Infrastructure | Docker Compose (7 services), nginx, Caddy (HTTPS), GitHub Actions (lint, migrations, schema drift, tests, image build, stack smoke test) |
 
 ## Quick start
@@ -166,7 +166,7 @@ Catalog prices do not need to be updated manually. Each item has a `MarketListin
 ## Tests and quality
 
 ```bash
-cd backend && pytest --cov        # 275 tests, needs PostgreSQL
+cd backend && pytest --cov        # 286 tests, needs PostgreSQL
 cd frontend && npm test && npm run typecheck && npm run lint
 ```
 
