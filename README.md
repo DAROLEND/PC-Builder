@@ -148,11 +148,9 @@ All rules live in [`backend/apps/builds/compatibility.py`](backend/apps/builds/c
 - **Market signals that don't lie:** price drops compare weekly medians and are shown only for parts sold by ≥ 5 shops; with one or two sellers the "average" jumps with every listing (a CPU "fell 75 %" because an overpriced single shop was joined by normal ones).
 - **Reading a Nuxt page state without executing it:** a small strict parser for exactly the syntax the serializer emits; anything else is rejected, so a changed page can make us learn less, never run foreign code.
 
-## Market data
+## Live prices and photos
 
-> **Collection from third-party sites is off by default** (`MARKET_FETCH_ENABLED=0`). The integration was built against hotline.ua, whose [user agreement](https://hotline.ua/ua/page/user_agreement/) forbids automated collection without the administration's written permission (p. 6.4) and copying of site materials (p. 2.4); robots.txt is not a permission. The live demo collects data with the hotline.ua administration's permission; any other deployment needs its own permission or a source whose terms allow collection.
-
-How it works when enabled: prices, offers and photos come from schema.org `Product` markup and the page state, specs are mapped per category and validated (unknown values are dropped: a part stays "catalog only" rather than getting a guessed spec), photos are mirrored once as WebP (360 / 1000 px), requests respect robots.txt with per-host throttling and an honest User-Agent, and a title check marks a listing as `mismatch` if its URL starts showing a different product. Parts sold by fewer than 3 shops are hidden from browsing and reappear when supply returns.
+Catalog prices do not need to be updated manually. Each item has a `MarketListing`—a link to the corresponding model on hotline.ua (or the store page). Celery Beat updates listings older than 20 hours every 30 minutes:
 
 ## Telegram price alerts
 
