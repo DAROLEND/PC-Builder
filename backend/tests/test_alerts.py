@@ -278,6 +278,62 @@ def test_nothing_happens_without_a_token(settings, cpu):
     assert check_watches(now=NOON)["checked"] == 0
 
 
+# --- Webhook ----------------------------------------------------------------------------
+
+
+@pytest.fixture
+def webhook(settings):
+    from django.core.cache import cache
+
+    from apps.alerts.telegram import webhook_secret
+
+    settings.TELEGRAM_WEBHOOK = True
+    cache.clear()  # processed update ids
+    return {"HTTP_X_TELEGRAM_BOT_API_SECRET_TOKEN": webhook_secret()}
+
+
+@responses.activate
+def test_webhook_handles_an_update_once(api, webhook, db):
+    responses.post(f"{API}/sendMessage", json={"ok": True, "result": {}})
+    user = linked_user(chat_id=555)
+    body = update("/stop")
+    for _ in range(2):  # Telegram retried after a slow cold start
+        resp = api.post("/api/telegram/webhook/", body, format="json", **webhook)
+        assert resp.status_code == 200
+    assert TelegramLink.objects.get(user=user).enabled is False
+    assert len(sent(responses)) == 1
+
+
+def test_webhook_refuses_a_wrong_secret(api, webhook, db):
+    resp = api.post(
+        "/api/telegram/webhook/",
+        update("/stop"),
+        format="json",
+        HTTP_X_TELEGRAM_BOT_API_SECRET_TOKEN="guess",
+    )
+    assert resp.status_code == 403
+    assert api.post("/api/telegram/webhook/", update("/stop"), format="json").status_code == 403
+
+
+def test_webhook_is_off_unless_enabled(api, db):
+    from apps.alerts.telegram import webhook_secret
+
+    resp = api.post(
+        "/api/telegram/webhook/",
+        update("/stop"),
+        format="json",
+        HTTP_X_TELEGRAM_BOT_API_SECRET_TOKEN=webhook_secret(),
+    )
+    assert resp.status_code == 404
+
+
+@responses.activate
+def test_webhook_acknowledges_an_update_that_fails(api, webhook, db):
+    # No sendMessage mock: the reply fails, but Telegram must not retry it forever.
+    resp = api.post("/api/telegram/webhook/", update("/list"), format="json", **webhook)
+    assert resp.status_code == 200
+
+
 # --- Local .env ---------------------------------------------------------------------
 
 

@@ -298,6 +298,10 @@ FRONTEND_URL = os.environ.get("FRONTEND_URL", "http://localhost:5173")
 # in backend/.env or the environment, never in the repository.
 TELEGRAM_BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "")
 TELEGRAM_BOT_USERNAME = os.environ.get("TELEGRAM_BOT_USERNAME", "")  # else read via getMe
+# How the bot receives messages: long polling by `run_telegram_bot` (a process that
+# is always running) or, with this on, a webhook into the web service itself
+# (hosts without background workers, e.g. Render's free plan).
+TELEGRAM_WEBHOOK = env_bool("TELEGRAM_WEBHOOK", False)
 
 UNPAID_ORDER_TTL_HOURS = int(os.environ.get("UNPAID_ORDER_TTL_HOURS", "48"))
 

@@ -8,6 +8,7 @@ from typing import Any
 import requests
 from django.conf import settings
 from django.core.cache import cache
+from django.utils.crypto import salted_hmac
 
 logger = logging.getLogger(__name__)
 
@@ -29,6 +30,15 @@ class TelegramError(Exception):
 
 def configured() -> bool:
     return bool(settings.TELEGRAM_BOT_TOKEN)
+
+
+def webhook_secret() -> str:
+    """Shared secret Telegram sends back in ``X-Telegram-Bot-Api-Secret-Token``.
+
+    Derived from SECRET_KEY, so there is no extra variable to keep in sync; hex
+    fits the header's allowed alphabet (A-Z, a-z, 0-9, _ and -).
+    """
+    return salted_hmac("telegram-webhook", settings.TELEGRAM_BOT_TOKEN).hexdigest()
 
 
 def call(method: str, *, http_timeout: float = TIMEOUT, **params: Any) -> Any:

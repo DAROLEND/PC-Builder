@@ -1,3 +1,9 @@
+import hmac
+import json
+import logging
+
+from django.conf import settings
+from django.core.cache import cache
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiParameter, extend_schema, extend_schema_view
 from rest_framework import mixins, permissions, status, viewsets
@@ -5,6 +11,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from . import telegram
+from .bot import handle_update
 from .models import LINK_TOKEN_TTL, TelegramLink, Watch
 from .serializers import (
     TelegramLinkRequestSerializer,
@@ -12,6 +19,8 @@ from .serializers import (
     TelegramStatusSerializer,
     WatchSerializer,
 )
+
+logger = logging.getLogger(__name__)
 
 
 @extend_schema_view(
@@ -111,3 +120,38 @@ class TelegramLinkView(APIView):
                 "expires_in": int(LINK_TOKEN_TTL.total_seconds()),
             }
         )
+
+
+class TelegramWebhookView(APIView):
+    """Telegram → us: the webhook alternative to ``run_telegram_bot``'s long polling.
+
+    Authenticated by the secret registered with ``setWebhook``, not by a user.
+    Always answers 200 once the secret matches: Telegram retries anything else,
+    and a retried update that failed once would fail again.
+    """
+
+    authentication_classes = []
+    permission_classes = [permissions.AllowAny]
+    throttle_classes = []
+
+    @extend_schema(exclude=True)
+    def post(self, request):
+        if not (settings.TELEGRAM_WEBHOOK and telegram.configured()):
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        received = request.headers.get("X-Telegram-Bot-Api-Secret-Token", "")
+        if not hmac.compare_digest(received, telegram.webhook_secret()):
+            return Response(status=status.HTTP_403_FORBIDDEN)
+        try:
+            update = json.loads(request.body)
+        except ValueError:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        # A cold start can outlast Telegram's timeout, and then the same update
+        # arrives twice; answer it once.
+        update_id = update.get("update_id")
+        if update_id is not None and not cache.add(f"telegram:update:{update_id}", 1, 24 * 3600):
+            return Response({"ok": True})
+        try:
+            handle_update(update)
+        except Exception:
+            logger.exception("Update %s failed", update_id)
+        return Response({"ok": True})
