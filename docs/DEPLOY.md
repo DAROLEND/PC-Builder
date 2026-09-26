@@ -144,13 +144,18 @@ API, and a Key Value (Redis) instance for the cache and throttles.
    your API has another hostname, set the repository variable `DEMO_API_URL`
    (Actions → Variables). GitHub may delay scheduled runs by a few minutes; an
    external monitor (cron-job.org, UptimeRobot) on the same URL is stricter.
+6. Optional, **Telegram price alerts:** create a bot with @BotFather and put
+   its token into `TELEGRAM_BOT_TOKEN` on the API service (Render → the
+   service → Environment) and into the repository secret of the same name.
+   The API registers its webhook on start (`TELEGRAM_WEBHOOK=1` in
+   `render.yaml`); the *Price alerts* workflow sends alerts every hour.
 
 Free-plan limits: the API sleeps after 15 idle minutes without the keep-alive
 ping (the first request then takes up to a minute, while the static frontend
 loads at once and waits for data); background workers are paid, so Celery
 tasks run inline (`CELERY_TASK_ALWAYS_EAGER=1`), seeding and the NBU rate run
 next to the server on every start rather than before it, and
-the Telegram bot does not run. The container disk is wiped on every deploy, so
+the Telegram bot receives messages through a webhook instead of polling. The container disk is wiped on every deploy, so
 photos are stored in PostgreSQL (`MEDIA_STORAGE=db`, ~84 MB for 650 parts) and
 the API serves them with a 30-day cache; the static site proxies `/media/*`.
 
