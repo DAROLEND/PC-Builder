@@ -33,7 +33,7 @@
 |---|---|
 | Backend | Python 3.13, Django 5.2, Django REST Framework, PostgreSQL 17 (JSONB + GIN, window functions), SimpleJWT, drf-spectacular (OpenAPI 3), django-filter |
 | Background work | Celery + Redis, Celery beat (exchange rate, market refresh, price alerts, order expiry) |
-| Integrations | Anthropic Claude API (tool use), Telegram Bot API (long polling), Stripe Checkout + webhooks, NBU exchange-rate API, market data from product pages (disabled by default, see [Market data](#market-data)) |
+| Integrations | Anthropic Claude API (tool use), Telegram Bot API (long polling or webhook), Stripe Checkout + webhooks, NBU exchange-rate API, market data from product pages (disabled by default, see [Market data](#market-data)) |
 | Frontend | React 19, TypeScript, Vite, TanStack Query, React Router, `openapi-fetch` with **types generated from the OpenAPI schema**, typed i18n |
 | Tests | pytest + pytest-django + factory_boy + responses (275 tests), Vitest + Testing Library (16), Playwright for manual end-to-end checks |
 | Infrastructure | Docker Compose (7 services), nginx, Caddy (HTTPS), GitHub Actions (lint, migrations, schema drift, tests, image build, stack smoke test) |
@@ -154,7 +154,7 @@ Catalog prices do not need to be updated manually. Each item has a `MarketListin
 
 ## Telegram price alerts
 
-"Watch price" on a part or build page stores a condition (±N % either way and/or a target price). After every market refresh `check_watches()` compares the price with a baseline that moves **only after a successful delivery**, so an alert held back by quiet hours (22:00–08:00 Kyiv) or a Telegram outage is sent later instead of being lost. Linking needs no password in the bot: the site issues a one-time code, the user opens `t.me/<bot>?start=<code>`. Commands `/list`, `/stop`, `/on`; a user who blocks the bot is switched off automatically.
+"Watch price" on a part or build page stores a condition (±N % either way and/or a target price). After every market refresh `check_watches()` compares the price with a baseline that moves **only after a successful delivery**, so an alert held back by quiet hours (22:00–08:00 Kyiv) or a Telegram outage is sent later instead of being lost. Linking needs no password in the bot: the site issues a one-time code, the user opens `t.me/<bot>?start=<code>`. Commands `/list`, `/stop`, `/on`; a user who blocks the bot is switched off automatically. The bot receives messages by long polling (`run_telegram_bot`, the `bot` service in Docker Compose) or, on a host without background workers, through a webhook into the API (`TELEGRAM_WEBHOOK=1`, secret-checked, each update handled once).
 
 ## AI advisor
 
