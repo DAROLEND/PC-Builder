@@ -8,7 +8,7 @@ from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, Spec
 from rest_framework.routers import DefaultRouter
 
 from apps.advisor.views import AdvisorView
-from apps.alerts.views import TelegramLinkView, TelegramView, WatchViewSet
+from apps.alerts.views import TelegramLinkView, TelegramView, TelegramWebhookView, WatchViewSet
 from apps.builds.views import BuildViewSet, CommentViewSet, CompatibilityCheckView
 from apps.catalog.db_storage import serve_stored_file
 from apps.catalog.views import (
@@ -46,6 +46,7 @@ urlpatterns = [
     path("api/advisor/", AdvisorView.as_view(), name="advisor"),
     path("api/telegram/", TelegramView.as_view(), name="telegram"),
     path("api/telegram/link/", TelegramLinkView.as_view(), name="telegram-link"),
+    path("api/telegram/webhook/", TelegramWebhookView.as_view(), name="telegram-webhook"),
     path("api/payments/stripe/webhook/", StripeWebhookView.as_view(), name="stripe-webhook"),
     path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
     path("api/docs/", SpectacularSwaggerView.as_view(url_name="schema"), name="swagger-ui"),
