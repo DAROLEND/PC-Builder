@@ -4,8 +4,9 @@ The product page draws its price chart from ``/svc/frontend-api/graphql``
 (query ``chart(productPath)``): daily average, minimum and maximum over the
 last year, twice a month before that, in UAH and USD. It is an internal,
 undocumented endpoint, so it is queried under the same rules as every other
-request (robots.txt, throttling, honest User-Agent). If it changes or fails, nothing breaks: we keep recording our own
-daily points (see ``market_service.record_daily_price``).
+request (robots.txt, throttling, honest User-Agent). If it changes or fails,
+nothing breaks: we keep recording our own daily points (see
+``market_service.record_daily_price``).
 
 Both sources write ``PriceHistory`` rows with ``source="hotline.ua"``, one per
 day. Chart points replace our own for the same day, and our own points after
