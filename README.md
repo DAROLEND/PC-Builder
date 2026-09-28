@@ -35,7 +35,7 @@
 | Background work | Celery + Redis, Celery beat (exchange rate, market refresh, price alerts, order expiry) |
 | Integrations | Anthropic Claude API (tool use), Telegram Bot API (long polling or webhook), Stripe Checkout + webhooks, NBU exchange-rate API, market data from product pages (off by default, on in the live demo; see [Live prices and photos](#live-prices-and-photos)) |
 | Frontend | React 19, TypeScript, Vite, TanStack Query, React Router, `openapi-fetch` with **types generated from the OpenAPI schema**, typed i18n |
-| Tests | pytest + pytest-django + factory_boy + responses (286 tests), Vitest + Testing Library (16), Playwright for manual end-to-end checks |
+| Tests | pytest + pytest-django + factory_boy + responses (286 tests), Vitest + Testing Library (16) |
 | Infrastructure | Docker Compose (7 services), nginx, Caddy (HTTPS), GitHub Actions (lint, migrations, schema drift, tests, image build, stack smoke test) |
 
 ## Quick start
